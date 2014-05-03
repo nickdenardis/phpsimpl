@@ -1,6 +1,7 @@
 <?php
 // Include the Config
 include_once(__DIR__ . '/config.php');
+include_once(__DIR__ . '/functions.php');
 
 /**
 * Base PHPSimpl Class used to control Simpl at its highest level
@@ -76,9 +77,6 @@ class Simpl {
 		return true;
 	}
 }
-
-// Load the Base Classes
-$myValidator = new Validate;
 
 // If using DB Sessions
 if (DB_SESSIONS == true){

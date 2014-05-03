@@ -20,9 +20,6 @@
         "php": ">=5.2"
     },
     "autoload": {
-        "files": [
-          "functions.php"
-        ],
         "classmap": [
             "lib/simpl.php"
         ]

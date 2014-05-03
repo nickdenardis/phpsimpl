@@ -14,7 +14,7 @@ function __autoload($className){
  * Autoload classes (no need to include them one by one)
  *
  * @param $className string
- */
+
 if (!function_exists('simplAutoload')){
 function simplAutoload($className){
 	if (is_file(FS_SIMPL . strtolower($className) . '.php'))
@@ -26,7 +26,7 @@ function simplAutoload($className){
 
 spl_autoload_register('simplAutoload');
 
- 
+ */
 /**
  * Display an array of alerts with a div class
  *
@@ -38,7 +38,7 @@ if (!function_exists('Alert')){
 	function Alert($alerts, $type=''){
 		// Decide what class to display
 		$class = ($type == '')?'Error':$type;
-		
+
 		//Display all errors to user
 		if ( is_array($alerts) && count($alerts) > 0){
 			while ( list($key,$data) = each($alerts) ){
@@ -52,7 +52,7 @@ if (!function_exists('Alert')){
 
 /**
  * Set a string as an alert
- * 
+ *
  * @param $alert A string with the Alert text in it
  * @param $type A string with the type of alert, usually ("error","success")
  * @return bool
@@ -65,14 +65,14 @@ if (!function_exists('SetAlert')){
 				$_SESSION[$type][] = $value;
 		else
 			$_SESSION[$type][] = $alert;
-		
+
 		return true;
 	}
 }
 
 /**
  * Is there a certain type of alerts waiting
- * 
+ *
  * @param $type A string containing the type of alert to return
  * @return array
  */
@@ -86,7 +86,7 @@ if (!function_exists('IsAlert')){
 /**
  * Get the Alert from the session
  * This will clear the session alerts when done.
- * 
+ *
  * @param $type A string containing the type of alert to return
  * @return array
  */
@@ -110,12 +110,12 @@ if (!function_exists('GetAlert')){
 if (!function_exists('Pre')){
 	function Pre($text, $ip=''){
 		$ready = true;
-		
+
 		if (is_string($ip) && $ip != '' && $_SERVER['REMOTE_ADDR'] != $ip)
 			$ready = false;
 		else if (is_array($ip) && !in_array($_SERVER['REMOTE_ADDR'], $ip))
 			$ready = false;
-		
+
 		if ($ready == true){
 			echo '<pre>';
 			print_r($text);
@@ -146,7 +146,7 @@ if (!function_exists('h')){
 function a(&$array, $index){
 	if (is_array($array) && isset($index[$array]))
 		return $array[$index];
-		
+
 	return false;
 }
 
@@ -162,17 +162,17 @@ if (!function_exists('Debug')){
 			$backtrace = debug_backtrace();
 			$debug = array();
 			$stack = (isset($backtrace[1]['class']) ? "{$backtrace[1]['class']}::" : '') . (isset($backtrace[1]['function']) ? "{$backtrace[1]['function']}" : '');
-			
+
 			if ($stack)
 				$debug[] = $stack;
-				
+
 			$debug[] = "Line {$backtrace[0]['line']} of {$backtrace[0]['file']}";
-			
+
 			$debug = implode('<br />', $debug);
-			
+
 			print '<pre class="debug' . (($class != '')?' ' . $class:'') . '">' . "{$class}: {$debug}:<br />" . print_r($output, 1) . "\n";
 		}
-		
+
 		/*
 		if (DEBUG === true){
 			echo '<pre class="debug' . (($class != '')?' ' . $class:'') . '">DEBUG:' . "\n";
@@ -180,14 +180,14 @@ if (!function_exists('Debug')){
 			echo '</pre>';
 		}
 		*/
-		
+
 		if (DEBUG_LOG === true){
 			 if (!$fp = fopen(FS_CACHE . 'debug.log', "a"))
 			 	return;
-			 
+
 			 if (fwrite($fp, date("Y-m-d H:i:s") . ' ' . $_SERVER['REMOTE_ADDR'] . ' ' . print_r($output, true) . "\n") === FALSE)
 			 	return;
-			 	
+
 			 fclose($fp);
 			 chmod (FS_CACHE . 'debug.log', 0777);
 		}
@@ -203,7 +203,7 @@ if (!function_exists('Debug')){
 if (!function_exists('DateTimeDiff')){
 function DateTimeDiff($time, $opt = array('parts' => 3)) {
 	$time = strtotime($time);
-    
+
     // The default values
     $defOptions = array(
         'to' => 0,
@@ -231,7 +231,7 @@ function DateTimeDiff($time, $opt = array('parts' => 3)) {
         'second' => 1
     );
     // Round to precision
-    if ($opt['precision'] != 'second') 
+    if ($opt['precision'] != 'second')
         $diff = round(($diff/$periods[$opt['precision']])) * $periods[$opt['precision']];
     // Report the value is 'less than 1 ' precision period away
     (0 == $diff) && ($str = 'less than 1 '.$opt['precision']);
@@ -308,7 +308,7 @@ function search_html_escape_terms($terms){
 		}
 	}
 
-	return $out;	
+	return $out;
 }
 
 function search_pretty_terms($terms_html){
@@ -322,7 +322,7 @@ function search_pretty_terms($terms_html){
 
 /**
  * Checks for multiarray (2 or more levels deep)
- * 
+ *
  * @param $multiarray Array
  * @return bool
  */
