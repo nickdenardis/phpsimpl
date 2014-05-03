@@ -20,8 +20,8 @@
         "php": ">=5.2"
     },
     "autoload": {
-        "classmap": [
-            "lib/simpl.php"
-        ]
+        "psr-0": {
+            "Simpl":"lib"
+        }
     }
 }

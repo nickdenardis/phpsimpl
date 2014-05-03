@@ -1,4 +1,5 @@
-<?php
+<?php namespace Simpl;
+
 /**
  * DB Template Class
  * Needs to be extended to do anything out of the ordinary

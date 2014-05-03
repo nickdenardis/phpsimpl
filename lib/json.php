@@ -1,5 +1,6 @@
-<?php
-/**
+<?php namespace Simpl;
+
+    /**
  * Created on Dec 26, 2006
  * Filename json.php
  * 

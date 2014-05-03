@@ -1,7 +1,7 @@
 <?php
 // Override the IP address if in a load balanced environment
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-  $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
 
 // Debug everything, set only if you need to know exactly what is going on
 if (!defined('DEBUG')) define('DEBUG', false);
@@ -42,4 +42,3 @@ if (!defined('DB_USER')) define('DB_USER',DBUSER);
 if (!defined('DB_HOST')) define('DB_HOST',DBHOST);
 if (!defined('DB_PASS')) define('DB_PASS',DBPASS);
 if (!defined('DB_DEFAULT')) define('DB_DEFAULT', NULL);
-?>

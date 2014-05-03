@@ -1,4 +1,5 @@
-<?php
+<?php namespace Simpl;
+
 /**
  * Base class for exporting data in various formats
  *
