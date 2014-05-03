@@ -1,0 +1,27 @@
+{
+    "name": "phpsimpl/simpl",
+    "type": "library",
+    "description": "PHPSimpl - a collection of useful PHP classes",
+    "keywords": ["classes"],
+    "homepage": "https://github.com/nickdenardis/phpsimpl",
+    "license": "LGPL-3.0",
+    "authors": [
+        {
+            "name": "Nick DeNardis",
+            "email": "nick.denardis@gmail.com"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/phpsimpl",
+        "issues": "https://github.com/nickdenardis/phpsimpl/issues",
+        "source": "https://github.com/nickdenardis/phpsimpl"
+    },
+    "require": {
+        "php": ">=5.2"
+    },
+    "autoload": {
+        "classmap": [
+            "lib/simpl.php"
+        ]
+    }
+}
