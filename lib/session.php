@@ -1,4 +1,4 @@
-<?php namespace Phpsimpl;
+<?php namespace Simpl;
 
 /**
  * Used to store sessions in the Database

@@ -10,8 +10,6 @@ function __autoload($className){
 }
 */
 
-echo 'here';
-
 /**
  * Autoload classes (no need to include them one by one)
  *

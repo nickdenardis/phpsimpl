@@ -1,4 +1,4 @@
-<?php namespace Phpsimpl;
+<?php namespace Simpl;
 
 /**
  * Base Form Class

@@ -1,4 +1,4 @@
-<?php namespace Phpsimpl;
+<?php namespace Simpl;
 
 /**
  * DB Template Class
