@@ -1,4 +1,4 @@
-<?php namespace Simpl;
+<?php namespace Phpsimpl;
 
     /**
  * Created on Dec 26, 2006

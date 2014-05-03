@@ -1,4 +1,4 @@
-<?php namespace Simpl;
+<?php namespace Phpsimpl;
 
 /**
  * Base class for exporting data in various formats

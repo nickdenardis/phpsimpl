@@ -1,4 +1,4 @@
-<?php namespace Simpl;
+<?php namespace Phpsimpl;
 
 // Include the Config
 include_once(__DIR__ . '/config.php');

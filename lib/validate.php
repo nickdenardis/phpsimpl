@@ -1,4 +1,4 @@
-<?php namespace Simpl;
+<?php namespace Phpsimpl;
 
 /**
  * Base Validate Class
