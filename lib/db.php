@@ -440,8 +440,7 @@ class DB extends Simpl {
 	 */
 	public function Prepare($string) {
 		// Make sure we are connected first
-		if (!$this->connected)
-			$this->DbConnect();
+		$this->DbConnect();
 		
 		// Escape the values from SQL injection
 		return (is_numeric($string))?addslashes($string):mysql_real_escape_string($string);
