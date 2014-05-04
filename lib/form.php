@@ -21,19 +21,19 @@ class Form {
 	 * @var string
 	 */
 	protected $prefix;
-	
 
-	/**
-	 * Class Constructor
-	 *
-	 * Creates a Form Class with all the information to use the Form functions
-	 *
-	 * @param $data An Array of all the values for the fields
-	 * @param $required An Array of all the required keys for the form
-	 * @param $labels An Array of all the custom labels for the form
-	 * @param $examples An Array of all the exmples for each form element
-	 * @return bool
-	 */
+
+    /**
+     * Class Constructor
+     *
+     * Creates a Form Class with all the information to use the Form functions
+     *
+     * @param $data An Array of all the values for the fields
+     * @param array|\Simpl\An $required An Array of all the required keys for the form
+     * @param array|\Simpl\An $labels An Array of all the custom labels for the form
+     * @param array|\Simpl\An $examples An Array of all the exmples for each form element
+     * @return \Simpl\Form
+     */
 	public function __construct($data, $required=array(), $labels=array(), $examples=array()){
 		// Loop through all the data
 		foreach ($data as $key=>$data){
@@ -639,14 +639,12 @@ class Form {
 	 * @return bool
 	 */
 	public function SetSetting($setting, $value){
-		global $mySimpl;
-		
 		// Make sure it is a valid setting
-		if (!array_key_exists($setting, $mySimpl->settings['form']))
+		if (!array_key_exists($setting, $this->settings['form']))
 			return false;
 
 		// Set the Setting
-		$mySimpl->settings['form'][$setting] = $value;
+		$this->settings['form'][$setting] = $value;
 		
 		return true;
 	}
@@ -658,10 +656,8 @@ class Form {
 	 * @return bool
 	 */
 	public function GetSetting($setting){
-		global $mySimpl;
-		
 		// Get the Setting
-		return $mySimpl->settings['form'][$setting];
+		return $this->settings['form'][$setting];
 	}
 	
 	/**
@@ -826,8 +822,7 @@ class Form {
 	 * @param $string string
 	 * @return string
 	 */
-	protected function Output($string){
+	public function Output($string){
 		return stripslashes($string);
 	}
 }
-?>

@@ -53,18 +53,20 @@ class DbTemplate extends Form {
 	 */
 	private $group_by;
 
-	/**
-	 * DbTemplate Constructor
-	 * 
-	 * @param string $table Table name
-	 * @param string $database Database name
-	 * @return bool
-	 */
-	public function __construct($table, $database){
-		global $db;
+    private $db_link;
 
+    /**
+     * DbTemplate Constructor
+     *
+     * @param string $table Table name
+     * @param string $database Database name
+     * @return \Simpl\DbTemplate
+     */
+	public function __construct($table, $database){
 		$this->table = $table;
 		$this->database = $database;
+
+        $this->db_link = DB::getConnection();
 
 		// Pull the cache if available
 		$cache = $this->Cache('get', 'table_' . $this->table . '.cache.php', '', '1 day');
@@ -101,58 +103,6 @@ class DbTemplate extends Form {
 	}
 
 	/**
-	 * Main function that does all the work
-	 *
-	 * This function will soon be depricated, it was a result of lack of constructors in PHP4
-	 *
-	 * @param array $data In form field=>value
-	 * @param array $required Field names
-	 * @param array $labels array of field labels
-	 * @param array $examples array of field examples
-	 * @param string $table string of table name
-	 * @param array $fields array of existing fields
-	 * @param string $database string of the database name
-	 * @return bool
-	 */
-	public function DbTemplate($data, $required=array(), $labels=array(), $examples=array(), $table='', $fields=array(), $database=''){
-		$this->table = $table;
-		$this->database = (trim($database) != '')?$database:DB_DEFAULT;
-
-		// Pull the cache if available
-		$cache = $this->Cache('get', 'table_' . $this->table . '.cache.php', '', '1 day');
-
-		// Read the cache if possible
-		if (USE_CACHE == true && $cache != ''){
-			// Get the cached fields
-			$this->fields = unserialize($cache);
-			
-			// Recover the primary key
-			foreach($this->fields as $name=>$field){
-				// Set the primary if it is
-				if ($field->Get('primary') == 1)
-					$this->primary = $name;
-			}
-		}else{
-			// Get the fields and their properties
-			$this->ParseTable();
-
-			// If Use Cache try to save it
-			if (USE_CACHE == true)
-				$this->Cache('set', 'table_' . $this->table . '.cache.php', $this->fields);
-		}
-		
-		// Set the local display
-		$this->display = $this->GetFields();
-		
-		$this->SetRequired($required);
-		$this->SetLabels($labels);
-		$this->SetExamples($examples);
-		$this->SetValues($data);
-		
-		return true;
-	}
-
-	/**
 	 * Get the Item Information
 	 *
 	 * @param array $fields Names of all the return fields
@@ -160,7 +110,6 @@ class DbTemplate extends Form {
 	 * @return bool
 	 */
 	public function GetInfo($fields=array(), $conditions=array()){
-		global $db;
 		$select = '*';
 		
 		// If there is conditions
@@ -192,16 +141,16 @@ class DbTemplate extends Form {
 
 		// Add the rest of the query together
 		$query = 'SELECT ' . $select . ' FROM `' . $this->table . '` WHERE ' . $extra . ' LIMIT 1';
-		$result = $db->Query($query, $this->database);
+		$result = $this->db_link->Query($query, $this->database);
 		
 		Debug('GetInfo(), Query: ' . $query);
 
 		// If there is atleast one result
-		if ($db->NumRows($result) == 1){
+		if ($this->db_link->NumRows($result) == 1){
 			Debug('GetInfo(), Item Found');
 
 			// Get the info
-			$info = $db->FetchArray($result);
+			$info = $this->db_link->FetchArray($result);
 
 			// Loop through all the fields and set the values
 			foreach($this->fields as $key=>$data)
@@ -214,15 +163,15 @@ class DbTemplate extends Form {
 		return false;
 	}
 
-	/**
-	 * Saves class information into the database table
-	 *
-	 * @param array $options config values
-	 * @param string $force (NULL, insert, update)
-	 * @return bool
-	 */
+    /**
+     * Saves class information into the database table
+     *
+     * @param array $options config values
+     * @param string $force (NULL, insert, update)
+     * @param array $force_on
+     * @return bool
+     */
 	public function Save($options=array(), $force='', $force_on=array()){
-		global $db;
 		$info = array();
 		
 		// Make sure the data validates
@@ -297,13 +246,13 @@ class DbTemplate extends Form {
 				$info[$data] = $this->GetValue($data);
 
 		// Check to see if we can connect
-		if ($db->DbConnect()){
+		if ($this->db_link->IsConnected()){
 			// Do the Operation
-			$db->Perform($this->table, $info, $type, $extra, $this->database);
+            $this->db_link->Perform($this->table, $info, $type, $extra, $this->database);
 	
 			// Grab the ID if inserting
 			if ($type == 'insert' && $this->primary != '')
-				$this->SetPrimary($db->InsertID());
+				$this->SetPrimary($this->InsertID());
 			
 			Debug('Save(), Success Saving Item: ' . get_class($this) . ', Primary Key: ' . $this->GetPrimary());
 			return true;
@@ -324,40 +273,42 @@ class DbTemplate extends Form {
 
 		return false;
 	}
-	
-	/**
-	 * Insert the date from the object into the database
-	 * Mainly used for tables without a primary key
-	 *
-	 * @return bool
-	 */
+
+    /**
+     * Insert the date from the object into the database
+     * Mainly used for tables without a primary key
+     *
+     * @param array $options
+     * @return bool
+     */
 	public function Insert($options=array()){
-		return $this->Save($options, 'insert');
+		return $this->db_link->Save($options, 'insert');
 	}
-	
-	/**
-	 * Update the data in the table with a condition
-	 * Mainly used for tables without a primary key
-	 *
-	 * @return bool
-	 */
+
+    /**
+     * Update the data in the table with a condition
+     * Mainly used for tables without a primary key
+     *
+     * @param array $options
+     * @param array $conditions
+     * @return bool
+     */
 	public function Update($options=array(), $conditions=array()){
 		if (!is_array($conditions))
 			$conditions = array($conditions);
 		
-		return $this->Save($options, 'update', $conditions);
+		return $this->db_link->Save($options, 'update', $conditions);
 	}
-	
-	/**
-	 * Update an individual value in the database
-	 *
-	 * @param string $field
-	 * @param string $value
-	 * @return bool
-	 */
+
+    /**
+     * Update an individual value in the database
+     *
+     * @param string $field
+     * @param string $value
+     * @param array $conditions
+     * @return bool
+     */
 	public function UpdateValue($field, $value, $conditions=array()){
-		global $db;
-		
 		// Require a valid field
 		if (!$this->IsField($field))
 			return false;
@@ -383,24 +334,22 @@ class DbTemplate extends Form {
 		Debug('UpdateValue(), Field: ' . $field . ', New Value: ' . $value . ', On: ' . $extra);
 		
 		// Do the Operation
-		$db->Perform($this->table, array($field => $value), 'update', $extra, $this->database);
+        $this->db_link->Perform($this->table, array($field => $value), 'update', $extra, $this->database);
 		
 		// Set the new value locally
 		$this->SetValue($field, $value);
 		
 		return true;
 	}
-	
-	/**
-	 * Deletes the record from the database
-	 *
-	 * @param array $options config values
-	 * @return bool
-	 */
+
+    /**
+     * Deletes the record from the database
+     *
+     * @param array $options config values
+     * @param array $conditions
+     * @return bool
+     */
 	public function Delete($options=array(), $conditions=array()){
-		global $db;
-		global $mySimpl;
-		
 		// If there is conditions
 		if (!is_array($conditions))
 			$conditions = array($conditions);
@@ -425,13 +374,13 @@ class DbTemplate extends Form {
 		
 			// Delete the entry
 			$query = 'DELETE FROM `' . $this->table . '` WHERE ' . $extra;
-			$result = $db->Query($query, $this->database);
+			$result = $this->db_link->Query($query, $this->database);
 			
 			// Clear the cache
-			$mySimpl->Cache('clear_query');
+			$this->ClearCache('clear_query');
 			
 			// If it did something the return that everything is gone
-			if ($db->RowsAffected() == 1){
+			if ($this->RowsAffected() == 1){
 				Debug('Delete(), Success Deleted Item: ' . get_class($this) . ', On: ' . $extra);
 				return true;
 			}
@@ -441,21 +390,20 @@ class DbTemplate extends Form {
 		
 		return false;
 	}
-	
-	/**
-	 * Get a List from the Database
-	 *
-	 * Returns an array of objects from the Database according to criteria set
-	 *
-	 * @param $fields An array of field keys to return
-	 * @param $order_by A string of a field key to order by (ex. "display_order")
-	 * @param $sort A string on how to sort the data (ex "ASC" or "DESC")
-	 * @param $offset An int on where to start returning, used mainly for page numbering
-	 * @param $limit An int limit on the number of rows to be returned
-	 * @return array
-	 */
+
+    /**
+     * Get a List from the Database
+     *
+     * Returns an array of objects from the Database according to criteria set
+     *
+     * @param array|\Simpl\An $fields An array of field keys to return
+     * @param \Simpl\A|string $order_by A string of a field key to order by (ex. "display_order")
+     * @param \Simpl\A|string $sort A string on how to sort the data (ex "ASC" or "DESC")
+     * @param \Simpl\An|string $offset An int on where to start returning, used mainly for page numbering
+     * @param \Simpl\An|string $limit An int limit on the number of rows to be returned
+     * @return array
+     */
 	public function GetList($fields=array(), $order_by='', $sort='', $offset='', $limit=''){
-		global $db;
 		$returns = $this->results = array();
 		
 		// Push $this into the array
@@ -479,10 +427,10 @@ class DbTemplate extends Form {
 
 			// Create the filters
 			foreach($values as $name=>$value){
-				$where .= ((string)$value != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE':'=') . ' \'' . $db->Prepare($value) . '\' AND ':'';
+				$where .= ((string)$value != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE':'=') . ' \'' . $this->Prepare($value) . '\' AND ':'';
 			
 				// Create the search
-				$search .= ($class->search != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE \'%' . $db->Prepare($class->search) . '%\'':' = \'' . $db->Prepare($class->search) . '\'') . ' OR ':'';
+				$search .= ($class->search != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE \'%' . $this->Prepare($class->search) . '%\'':' = \'' . $this->Prepare($class->search) . '\'') . ' OR ':'';
 			}
 			
 			// Create the return fields
@@ -541,15 +489,15 @@ class DbTemplate extends Form {
 		$query .= ($offset > 0 || $limit > 0)?' LIMIT ' . $offset . ', ' . $limit:'';
 
 		// Do the Query
-		$result = $db->Query($query, $this->database);
+		$result = $this->db_link->Query($query, $this->database);
 		Debug('GetList(), Query: ' . $query);
 
 		// Get the results
 		if ($returns[0] == 'count'){
-			$info = $db->FetchArray($result);
+			$info = $this->db_link->FetchArray($result);
 			$this->results['count'] = $info['count'];		
 		}else{
-			while ($info = $db->FetchArray($result)){
+			while ($info = $this->db_link->FetchArray($result)){
 				if ($this->primary != '')
 					$this->results[$info[$this->primary]] = $info;
 				else
@@ -575,8 +523,6 @@ class DbTemplate extends Form {
 	 * @return int
 	 */
 	public function Search($keywords, $search_fields, $return_fields){
-		// Use the global db class
-		global $db;
 		$returns = array();
 		
 		// Push $this into the array
@@ -645,10 +591,10 @@ class DbTemplate extends Form {
 		
 		$query = 'SELECT ' . substr($return,0,-2) . ' FROM `' . $this->database . '`.`' . $this->table . '`' . $join . ' WHERE ' . $parts;
 		$query .= ($this->group_by != '')?' GROUP BY ' . $this->group_by:'';
-		$result = $db->Query($query, $this->database);
+		$result = $this->db_link->Query($query, $this->database);
 	
 		$results = array();
-		while($info = $db->FetchArray($result)){
+		while($info = $this->db_link->FetchArray($result)){
 			$info['score'] = 0;
 			foreach($terms_rx as $term_rx){
 				if (is_array($search_fields)){
@@ -745,8 +691,6 @@ class DbTemplate extends Form {
 	 * @return bool
 	 */
 	public function Move($direction, $options = array()){
-		global $db;
-		
 		// Get the Fields
 		$fields = $this->GetFields();
 		
@@ -768,26 +712,26 @@ class DbTemplate extends Form {
 				
 				// Make the query
 				$query = 'SELECT `' . $class->primary . '`,`' . $field . '` FROM `' . $this->table . '` WHERE ' . substr($q_filter,0,-4) . ' ORDER BY `' . $field . '` ' . (($direction == 'up')?'DESC ':'ASC ') . 'LIMIT 1';
-				$result = $db->Query($query, $this->database);
+				$result = $this->db_link->Query($query, $this->database);
 				Debug('Move(), Query: ' . $query);
 			
 				// If there is a place to move
-				if ($db->NumRows($result) == 1){
+				if ($this->db_link->NumRows($result) == 1){
 					// Get the new item item
-					$new_order = $db->FetchArray($result);
+					$new_order = $this->db_link->FetchArray($result);
 					
 					// Make sure they are not the same numbers
 					if ($new_order[$field] != $this->GetValue($field)){
 						// Update the old one
 						$oldArray = array($field => $this->GetValue($field));
-						$db->Perform($class->table, $oldArray, 'update', '`' . $class->primary . '`=\'' . $new_order[$class->primary] . '\'');
+                        $this->db_link->Perform($class->table, $oldArray, 'update', '`' . $class->primary . '`=\'' . $new_order[$class->primary] . '\'');
 						
 						// Update the New one
 						$newArray = array($field => $new_order[$field]);
-						$db->Perform($this->table, $newArray, 'update', '`' . $this->primary . '`=\'' . $this->GetPrimary() . '\'');
+                        $this->db_link->Perform($this->table, $newArray, 'update', '`' . $this->primary . '`=\'' . $this->GetPrimary() . '\'');
 						
 						// Set the value to this class
-						$this->SetValue($field,$new_order[$field]);
+                        $this->db_link->SetValue($field,$new_order[$field]);
 						
 						return true;
 					}
@@ -1139,7 +1083,7 @@ class DbTemplate extends Form {
 	 * @param string $max_age
 	 * @return string
 	 */
-	protected function Cache($action, $filename, $data='', $max_age=''){
+	public function Cache($action, $filename, $data='', $max_age=''){
 		// Set the full path
 		$cache_file = FS_CACHE . $filename;
 		$cache = '';
@@ -1211,19 +1155,17 @@ class DbTemplate extends Form {
 	 * @return boolean
 	 */
 	private function ParseTable(){
-		global $db;
-		
 		// Query for one record
-		$result = $db->Query('SELECT * FROM `' . $this->table . '` LIMIT 1', $this->database, false);
+		$result = $this->db_link->Query('SELECT * FROM `' . $this->table . '` LIMIT 1', $this->database, false);
 
 		// Loop through all the fields
-		while($field = $db->FetchField($result)){
+		while($field = $this->db_link->FetchField($result)){
 			// Set all the field info
 			$field_count = count($this->fields);
 			$tmpField = new Field;
 			$tmpField->Set('name', $field->name);
 			$tmpField->Set('type', $field->type);
-			$tmpField->Set('length', $db->FieldLength($result,$field_count));
+			$tmpField->Set('length', $this->db_link->FieldLength($result,$field_count));
 			$tmpField->Set('validate', $this->ValidType($field));
 			$tmpField->Set('primary', $field->primary_key);
 			$tmpField->Set('display', ($field_count+1));
@@ -1238,10 +1180,10 @@ class DbTemplate extends Form {
 		
 		if (USE_ENUM == true){
 			// Query for the ENUM information
-			$result2 = $db->Query('DESCRIBE ' . $this->table, $this->database, false);
+			$result2 = $this->db_link->Query('DESCRIBE ' . $this->table, $this->database, false);
 			
 			// Loop through all the fields
-			while ($info = $db->FetchArray($result2)){
+			while ($info = $this->db_link->FetchArray($result2)){
 				$options = array();
 				// Split up the type
 				preg_match_all('/\'(.*?)\'/', $info['Type'], $field);
@@ -1258,4 +1200,3 @@ class DbTemplate extends Form {
 		return true;
 	}
 }
-?>

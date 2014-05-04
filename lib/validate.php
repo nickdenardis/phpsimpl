@@ -8,7 +8,7 @@
  * @author Nick DeNardis <nick.denardis@gmail.com>
  * @link http://code.google.com/p/phpsimpl/
  */
-class Validate {
+class Validate extends Simpl {
 	/**
 	 * @var array
 	 */
@@ -21,13 +21,13 @@ class Validate {
         //'float' => '^[0-9]*\\.?[0-9]*$',
         'url' => '/^[a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+$/i');
 
-	/**
-	 * Validate Constructor
-	 *
-	 * Used to setup all the validation types
-	 *
-	 * @return bool
-	 */
+    /**
+     * Validate Constructor
+     *
+     * Used to setup all the validation types
+     *
+     * @return \Simpl\Validate
+     */
 	public function __construct(){
 		return true;
 	}
@@ -61,4 +61,3 @@ class Validate {
 		return true;
 	}
 }
-?>

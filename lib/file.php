@@ -13,14 +13,15 @@ class File extends Folder {
 	 * @var string 
 	 */
 	public $filename;
-	
-	/**
-	 * File Constructor
-	 * 
-	 * @param $filename	String containing the filename that is in question
-	 * @param $direcotry The directory where the file is sitting
-	 * @return null
-	 */
+
+    /**
+     * File Constructor
+     *
+     * @param $filename    String containing the filename that is in question
+     * @param string $directory
+     * @internal param \Simpl\The $direcotry directory where the file is sitting
+     * @return null
+     */
 	public function File($filename,$directory=''){
 		Debug('Constructor(), Intitializing values');
 		
@@ -290,4 +291,3 @@ class File extends Folder {
 		return false;
 	}
 }
-?>

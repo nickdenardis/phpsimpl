@@ -20,16 +20,16 @@ class Simpl {
     ));
 
     /**
-     * Class Constructor
+     * Class Construåctor
      *
      * Creates a Simpl Class with nothing in it
      *
-     * @return NULL
+     * @return \Simpl\Simpl
      */
     public function __construct(){
         // Clear the Cache if needed
         if (isset($_GET['clear']) || CLEAR_CACHE === true)
-            $this->Cache('clear');
+            $this->ClearCache('clear');
     }
 
     /**
@@ -58,7 +58,7 @@ class Simpl {
      * @param string $action
      * @return bool
      */
-    public function Cache($action){
+    public function ClearCache($action){
         switch($action){
             case 'clear':
                 $files = glob(FS_CACHE . "*.cache.php");
@@ -79,27 +79,22 @@ class Simpl {
     }
 }
 
-// Load the Base Classes
-/*
-$mySimpl = new Simpl;
-$myValidator = new Validate;
-
-*/
 // If using DB Sessions
-if (DB_SESSIONS == true){
-	// Create the DB Sesssion
-	$s = new Session((defined('DB_CMS'))?DB_CMS:DB_DEFAULT);
-	//Change the save_handler to use the class functions
-	session_set_save_handler (
-		array(&$s, 'open'),
-		array(&$s, 'close'),
-		array(&$s, 'read'),
-		array(&$s, 'write'),
-		array(&$s, 'destroy'),
-		array(&$s, 'gc')
-	);
-}else{
-	// Start a session if not already started
-	if (session_id() == '')
-		@session_start();
+if ( DB_SESSIONS == true ){
+    // Create the DB Session
+    $s = new Session((defined('DB_CMS'))?DB_CMS:DB_DEFAULT);
+
+    //Change the save_handler to use the class functions
+    session_set_save_handler (
+        array(&$s, 'open'),
+        array(&$s, 'close'),
+        array(&$s, 'read'),
+        array(&$s, 'write'),
+        array(&$s, 'destroy'),
+        array(&$s, 'gc')
+    );
 }
+
+// Start a session if not already started
+if (session_id() == '')
+    @session_start();

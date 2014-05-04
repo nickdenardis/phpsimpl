@@ -10,55 +10,55 @@
  */
 class Field extends Validate {
 	/**
-	 * @var string
+	 * @var string 
 	 */
 	private $name;
 	/**
-	 * @var string
+	 * @var string 
 	 */
 	private $label;
 	/**
-	 * @var string
+	 * @var string 
 	 */
 	private $example;
 	/**
-	 * @var various
+	 * @var various 
 	 */
 	private $value;
 	/**
-	 * @var various
+	 * @var various 
 	 */
 	private $default;
 	/**
-	 * @var string
+	 * @var string 
 	 */
 	private $error;
 	/**
-	 * @var string
+	 * @var string 
 	 */
 	private $validate;
 	/**
-	 * @var boolean
+	 * @var boolean 
 	 */
 	private $required = false;
 	/**
-	 * @var int
+	 * @var int 
 	 */
 	private $length;
 	/**
-	 * @var string
+	 * @var string 
 	 */
 	private $type;
 	/**
-	 * @var int
+	 * @var int 
 	 */
 	private $display;
 	/**
-	 * @var string
+	 * @var string 
 	 */
 	private $config;
 	/**
-	 * @var array
+	 * @var array 
 	 */
 	private $options;
 	/**
@@ -70,18 +70,18 @@ class Field extends Validate {
 	 */
 	private $multi = 0;
 
-	/**
-	 * Field Constructor
-	 *
-	 * @return bool
-	 */
+    /**
+     * Field Constructor
+     *
+     * @return \Simpl\Field
+     */
 	public function __construct(){
 		// Set the field to display
 		$this->display = 1;
-
+		
 		return true;
 	}
-
+	
 	/**
 	 * Get Field Property
 	 *
@@ -92,7 +92,7 @@ class Field extends Validate {
 		// Retrun the value of the property
 		return $this->$property;
 	}
-
+	
 	/**
 	 * Set Field Property
 	 *
@@ -107,58 +107,58 @@ class Field extends Validate {
 		}else{
 			$this->$property = $value;
 		}
-
+			
 		return true;
 	}
-
+	
 	/**
 	 * Validate the Field against the vaildate type
-	 *
+	 * 
 	 * @return bool
 	 */
 	public function Validate(){
 		// If the field is omited no need to validate
 		if ($this->Get('display') < 0)
 			return true;
-
+		
 		// Check to see if there is already an errror
 		if ($this->Get('error') != '')
 			return false;
-
+			
 		// Check to see if it is required first
 		if ($this->Get('required') == true && (string)$this->Get('value') == NULL){
 			// Set the Error
 			$this->Set('error', $this->Label() . ' is required.');
 			return false;
 		}
-
+		
 		// Validate agaist the regular expression
 		if ($this->Get('validate') != '' && (string)$this->Get('value') != '' && $this->Check($this->Get('validate'), $this->Get('value')) == false){
 			// Set the Error
 			$this->Set('error', $this->ErrorString());
 			return false;
 		}
-
+		
 		// Make sure it is within the correct length
 		if (strlen((string)$this->Get('value')) > $this->Get('length')){
 			// Set the Error
 			$this->Set('error', $this->Get('label') . ' is too long.');
 			return false;
 		}
-
+		
 		return true;
 	}
-
+	
 	/**
 	 * Get a human readable label for the field
-	 *
+	 * 
 	 * @param $append string of test to append to the label
 	 * @return string
 	 */
 	public function Label($append=''){
 		// Get the label
 		$str = $this->Output($this->Get('label'));
-
+		
 		// If no label use the name
 		if (trim($str) == '')
 			$str = ucfirst(str_replace('_',' ',$this->Get('name')));
@@ -166,34 +166,33 @@ class Field extends Validate {
 		// Remove any ":" from the label
 		if (substr($str,-1) == ':')
 			$str = substr($str,0,-1);
-
+			
 		// If this is a question or period leave it
 		if (substr(strip_tags($str),-1) == '?' || substr(strip_tags($str),-1) == '.')
 			return $str;
-
+		
 		return $str . $append;
 	}
 
 	/**
 	 * XHTML Form field
-	 *
+	 * 
 	 * @param $options array
 	 * @param $config string
 	 * @return bool
 	 */
 	public function Form($options='', $config='', $multi=false, $prefix=''){
-		global $mySimpl;
-		$settings = $mySimpl->settings['form'];
+		$settings = $this->settings['form'];
 
 		// If there is a default value use that
 		$my_value = ((string)$this->Get('value') == '' && $this->Get('default') != '')?$this->Get('default'):$this->Get('value');
-
+		
 		// If prefix is set use the class name
 		$name = ($prefix != '')?$prefix . '[' . $this->Get('name') . ']':$this->Get('name');
-
+		
 		// Change the fieldname to a multi if needed
 		if ($multi) $this->Set('multi', $this->Get('multi')+1);
-
+		
 		// Figure out how to display the form
 		if ($this->Get('display') < 0){
 			// Omit
@@ -203,19 +202,19 @@ class Field extends Validate {
 			echo '<input name="' . $name . (($multi)?'[]':'') . '" type="hidden" id="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '" value="' . urlencode($this->Output($my_value)) . '" />' . "\n";
 			return true;
 		}
-
+		
 		// If time display in nice format
 		if ($this->Get('type') == 'time' && $this->Get('value') != '')
 			$my_value = date("g:i a", strtotime($my_value));
-
+		
 		// Overwrite the options if needed
 		if(is_array($options) || is_object($options))
 			$this->Set('options', $options);
-
+		
 		// Overwrite the config if needed
 		if($config != '')
 			$this->Set('config', $config);
-
+		
 		$output = '<div class="field_' . $this->Get('name') . '">';
 		$output .= '<label for="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '">';
 		$output .= ($this->Get('required') && ($settings['required_indicator'] == 'before' || $settings['required_indicator'] == ''))?'<em>*</em>':'';
@@ -277,7 +276,7 @@ class Field extends Validate {
 		}elseif($this->Get('type') == 'date'){
 			// Date Field
 			$value = ($my_value != '0000-00-00' && $my_value != '')?date("F j, Y",strtotime($my_value)):'';
-			$output .= '<input name="' . $name . (($multi)?'[]':'') . '" id="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '" type="text" size="19" maxlength="19" value="' . $value . '" /><button type="reset" id="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '_b">...</button>';
+			$output .= '<input name="' . $name . (($multi)?'[]':'') . '" id="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '" type="text" size="19" maxlength="19" value="' . $value . '" /><button type="reset" id="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '_b">...</button>';	
 			$output .= '<script type="text/javascript">Calendar.setup({ inputField : "' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '", ifFormat : "%B %e, %Y", button : "' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '_b"});</script>';
 		}else{
 			// Single Field
@@ -292,39 +291,39 @@ class Field extends Validate {
 
 		// Output the form
 		echo $output;
-
+		
 		return true;
 	}
-
+	
 	/**
 	 * View a single table line of this item
-	 *
+	 * 
 	 * @param $options array
 	 * @return null
 	 */
 	public function View($options = ''){
 		if ($this->Get('display') <= 0)
 			return;
-
+		
 		// Overwrite the options for this field if desired
 		if(is_array($options))
 			$this->Set('options', $options);
-
+			
 		// Get the localised options
 		$options = $this->Get('options');
-
+		
 		// Display the individual item
 		$output = '<tr>';
 		$output .= '<th scope="row">' . $this->Label(':') . '</th>';
 		$output .= '<td>' . (($options[$this->Get('value')] != '')?$options[$this->Get('value')]:$this->Output($this->Get('value'))) . '</td>';
 		$output .= '</tr>';
-
+		
 		echo $output;
 	}
-
+	
 	/**
 	 * Get the plain text error type
-	 *
+	 * 
 	 * @return string
 	 */
 	private function ErrorString(){
@@ -342,4 +341,3 @@ class Field extends Validate {
 		return stripslashes($string);
 	}
 }
-?>
