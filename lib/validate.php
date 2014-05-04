@@ -12,7 +12,14 @@ class Validate {
 	/**
 	 * @var array
 	 */
-	private $types = array();
+	protected $types = array('email' => '/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*\@[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*\.[a-zA-Z]{2,4}$/',
+        'phone' => '/^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,3})|(\(?\d{2,3}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$',
+        'int' => '/^([0-9])+$/',
+        //'unsigned' => '^[0-9]*$',
+        'alpha' => '/^([a-zA-Z])+$/',
+        'alphanum' => '/^([a-zA-Z0-9])+$/',
+        //'float' => '^[0-9]*\\.?[0-9]*$',
+        'url' => '/^[a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+$/i');
 
 	/**
 	 * Validate Constructor
@@ -22,15 +29,6 @@ class Validate {
 	 * @return bool
 	 */
 	public function __construct(){
-		$this->types = array('email' => '/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*\@[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*\.[a-zA-Z]{2,4}$/',
-				'phone' => '/^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,3})|(\(?\d{2,3}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$',
-				'int' => '/^([0-9])+$/',
-				//'unsigned' => '^[0-9]*$',
-				'alpha' => '/^([a-zA-Z])+$/',
-				'alphanum' => '/^([a-zA-Z0-9])+$/',
-				//'float' => '^[0-9]*\\.?[0-9]*$',
-				'url' => '/^[a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+$/i');
-
 		return true;
 	}
 
