@@ -1,4 +1,5 @@
-<?php
+<?php namespace Simpl;
+
 /**
  * Database Interaction Class
  *
@@ -7,7 +8,7 @@
  * @author Nick DeNardis <nick.denardis@gmail.com>
  * @link http://code.google.com/p/phpsimpl/
  */
-class DB {
+class DB extends Simpl {
     /**
 	 * @var string 
 	 */
@@ -28,19 +29,40 @@ class DB {
      * @var string
      */
     private $config;
-    
+
     /**
-	 * Class Constructor
-	 *
-	 * Creates a DB Class with all the information to use the DB
-	 *
-	 * @return null
-	 */
+     * @var db_link
+     */
+    private $db_link;
+
+    /**
+     * @var
+     */
+    private static $factory;
+
+    /**
+     * Class Constructor
+     *
+     * Creates a DB Class with all the information to use the DB
+     *
+     * @return \Simpl\DB
+     */
     public function __construct(){
 		$this->connected = false;	
     	$this->query_count = 0;
     }
-    
+
+    /**
+     * @return string
+     */
+    public static function getConnection() {
+        if (!self::$factory) {
+            self::$factory = new DB;
+            self::$factory->Connect();
+        }
+        return self::$factory;
+    }
+
     /**
 	 * Setup the DB Connection
 	 *
@@ -51,16 +73,10 @@ class DB {
 	 * @return bool
 	 */
 	public function Connect($server=DB_HOST, $username=DB_USER, $password=DB_PASS, $database=DB_DEFAULT){
-		global $db;
-		
 		// Save the config till we are ready to connect
 		if (!$this->connected)
 			$this->config = array($server,$username,$password,$database);
-		
-		// If using DB Sessions start them now
-    	if (DB_SESSIONS == true && session_id() == '')
-    		@session_start();
-		
+
 		return true;
 	}
 	
@@ -72,9 +88,6 @@ class DB {
 	public function DbConnect(){
 		if ($this->connected)
 			return true;
-			
-		// Use the Global Link
-		global $db_link;
 		
 		// If we are not connected
 		if (is_array($this->config)){
@@ -82,14 +95,14 @@ class DB {
 			$this->database = $this->config[3];
 			
 			// Connect to MySQL
-			$db_link = @mysql_connect($this->config[0], $this->config[1], $this->config[2]);
-			
-			if ($db_link){
+			$this->db_link = @mysql_connect($this->config[0], $this->config[1], $this->config[2]);
+
+			if ($this->db_link){
 				// Update the state
 				$this->connected = true;
 				
 				// If there is a DB Defined select it
-				if ($this->database != NULL && !@mysql_select_db($this->database)){
+				if ($this->database != NULL && !@mysql_select_db($this->database, $this->db_link)){
 					return false;
 				}
 				
@@ -101,20 +114,19 @@ class DB {
 		
 		return false;
 	}
-	
-	/**
-	 * Execute a Query
-	 * 
-	 * Execute a query on a particular databse
-	 * 
-	 * @param string $query
-	 * @param string $db to override default database
-	 * @return Mixed
-	 * 
-	 */
+
+    /**
+     * Execute a Query
+     *
+     * Execute a query on a particular database
+     *
+     * @param string $query
+     * @param string $db to override default database
+     * @param bool $cache
+     * @param bool $log
+     * @return Mixed
+     */
 	public function Query($query, $db='', $cache=true, $log=true) {
-		global $db_link;
-		
 		// Track the start time of the query
 		if (DB_LOG && $log){
 			$start = explode(' ',microtime());
@@ -155,9 +167,11 @@ class DB {
 			print_r($query);
 			echo '</pre>';
 		}
-		
+        if ($this->db_link == NULL) {
+            Pre($this->Nice());
+        }
 		// Do the Query
-    	$result = mysql_query($query, $db_link) or $this->Error($query, mysql_errno(), mysql_error());
+    	$result = mysql_query($query, $this->db_link) or $this->Error($query, mysql_errno(), mysql_error());
     	
     	// Increment the query counter
     	$this->query_count++;
@@ -195,30 +209,27 @@ class DB {
     	
     	return $result;
 	}
-	
-	/**
-	 * Perform a Query
-	 * 
-	 * Use a smart way to create a query from abstract data
-	 * 
-	 * @param string $table 
-	 * @param array $data in form key=>value
-	 * @param string $action (ex. "update" or "insert")
-	 * @param string $parameters additional things that need to go on like "item_id='5'"
-	 * @param string $db to override default database
-	 * @return result
-	 */
+
+    /**
+     * Perform a Query
+     *
+     * Use a smart way to create a query from abstract data
+     *
+     * @param string $table
+     * @param array $data in form key=>value
+     * @param string $action (ex. "update" or "insert")
+     * @param string $parameters additional things that need to go on like "item_id='5'"
+     * @param string $db to override default database
+     * @param bool $clear
+     * @return result
+     */
 	public function Perform($table, $data, $action = 'insert', $parameters = '', $db = '', $clear = true) {
-		// Use the Global Link
-		global $db_link;
-		global $mySimpl;
-		
 		// Make sure we are connected
 		$this->DbConnect();
 		
 		// Clear the Query Cache
 		if ($clear == true)
-			$mySimpl->Cache('clear_query');
+			$this->ClearCache('clear_query');
 		
 		// Decide how to create the query
 		if ($action == 'insert'){
@@ -264,7 +275,7 @@ class DB {
 			$query = substr($query, 0, -2) . ' WHERE ' . $parameters;
 		}
 		
-		return $this->Query($query, $db);
+		return $this->Query($query, $this->db_link);
 	}
 	
 	/**
@@ -275,10 +286,7 @@ class DB {
 	public function Close(){
 		// If Connected
  		if ($this->connected){
-			// Use the Global Link
-			global $db_link;
- 		
-    		return @mysql_close($db_link);
+    		return @mysql_close($this->db_link);
  		}
  		
     	return true;
@@ -291,14 +299,11 @@ class DB {
 	 * @return bool
 	 */
 	public function Change($database){
-		// Use the Global Link
-		global $db_link;
-		
 		// Make sure we are connected
 		$this->DbConnect();
  		
  		// If there is a connection
-    	if ($db_link && @mysql_select_db($database)){
+    	if ($this->db_link && @mysql_select_db($database)){
 			// Increment the query counter
     		$this->query_count++;
     		
@@ -365,8 +370,7 @@ class DB {
 	 * @return int
 	 */
 	public function RowsAffected() {
-		global $db_link;
-		return mysql_affected_rows($db_link);
+		return mysql_affected_rows($this->db_link);
 	}
 	
 	/**
@@ -436,11 +440,9 @@ class DB {
 	 */
 	public function Prepare($string) {
 		// Make sure we are connected first
-		if (!$this->connected)
-			$this->DbConnect();
+		$this->DbConnect();
 		
 		// Escape the values from SQL injection
 		return (is_numeric($string))?addslashes($string):mysql_real_escape_string($string);
 	}
 }
-?>

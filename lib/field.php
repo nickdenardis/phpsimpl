@@ -1,4 +1,5 @@
-<?php
+<?php namespace Simpl;
+
 /**
  * Base Field Class
  *
@@ -7,7 +8,7 @@
  * @author Nick DeNardis <nick.denardis@gmail.com>
  * @link http://code.google.com/p/phpsimpl/
  */
-class Field {
+class Field extends Validate {
 	/**
 	 * @var string 
 	 */
@@ -68,12 +69,12 @@ class Field {
 	 * @var int
 	 */
 	private $multi = 0;
-	
-	/**
-	 * Field Constructor
-	 * 
-	 * @return bool
-	 */
+
+    /**
+     * Field Constructor
+     *
+     * @return \Simpl\Field
+     */
 	public function __construct(){
 		// Set the field to display
 		$this->display = 1;
@@ -120,8 +121,6 @@ class Field {
 		if ($this->Get('display') < 0)
 			return true;
 		
-		global $myValidator;
-		
 		// Check to see if there is already an errror
 		if ($this->Get('error') != '')
 			return false;
@@ -134,7 +133,7 @@ class Field {
 		}
 		
 		// Validate agaist the regular expression
-		if ($this->Get('validate') != '' && (string)$this->Get('value') != '' && $myValidator->Check($this->Get('validate'), $this->Get('value')) == false){
+		if ($this->Get('validate') != '' && (string)$this->Get('value') != '' && $this->Check($this->Get('validate'), $this->Get('value')) == false){
 			// Set the Error
 			$this->Set('error', $this->ErrorString());
 			return false;
@@ -183,8 +182,7 @@ class Field {
 	 * @return bool
 	 */
 	public function Form($options='', $config='', $multi=false, $prefix=''){
-		global $mySimpl;
-		$settings = $mySimpl->settings['form'];
+		$settings = $this->settings['form'];
 
 		// If there is a default value use that
 		$my_value = ((string)$this->Get('value') == '' && $this->Get('default') != '')?$this->Get('default'):$this->Get('value');
@@ -343,4 +341,3 @@ class Field {
 		return stripslashes($string);
 	}
 }
-?>

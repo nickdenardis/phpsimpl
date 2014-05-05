@@ -1,4 +1,5 @@
-<?php
+<?php namespace Simpl;
+
 /**
  * Base Mail Class
  * 
@@ -7,7 +8,7 @@
  * @author Nick DeNardis <nick.denardis@gmail.com>
  * @link http://code.google.com/p/phpsimpl/
  */
-class Mail{
+class Mail {
 	/**
 	 * @var	array
 	 */
@@ -392,4 +393,3 @@ class Mail{
 		$this->fullBody .= implode($sep, $ata);
 	}
 }
-?>

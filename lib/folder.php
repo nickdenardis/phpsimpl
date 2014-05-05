@@ -1,4 +1,5 @@
-<?php
+<?php namespace Simpl;
+
 /**
  * Base Folder Class
  * 
@@ -16,14 +17,14 @@ class Folder {
 	 * @var string 
 	 */
 	protected $folder_name;
-	
-	/**
-	 * Folder Constructor
-	 * 
-	 * @param $folder_name String containing the folder name that is in question
-	 * @param $directory The directory where the file is sitting
-	 * @return null
-	 */
+
+    /**
+     * Folder Constructor
+     *
+     * @param $folder_name String containing the folder name that is in question
+     * @param \Simpl\The|string $directory The directory where the file is sitting
+     * @return null
+     */
 	public function Folder($folder_name, $directory=''){
 		Debug('Constructor(), Initializing values');
 		$this->folder_name = $folder_name . ((substr($folder_name,-1) != '/')?'/':'');
@@ -301,4 +302,3 @@ class Folder {
 		return false;
 	}
 }
-?>

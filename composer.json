@@ -1,5 +1,6 @@
 {
     "name": "phpsimpl/simpl",
+    "version": "0.9.0",
     "type": "library",
     "description": "PHPSimpl - a collection of useful PHP classes",
     "keywords": ["classes"],
@@ -20,8 +21,8 @@
         "php": ">=5.2"
     },
     "autoload": {
-        "classmap": [
-            "lib/simpl.php"
-        ]
+        "psr-0": {
+            "Simpl":"lib"
+        }
     }
 }
