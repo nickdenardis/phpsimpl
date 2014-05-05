@@ -52,7 +52,7 @@ if (!function_exists('SetAlert')){
 if (!function_exists('IsAlert')){
 	function IsAlert($type){
 		// Return if there are strings waiting the the session type array
-		return (is_array($_SESSION[$type]) && count($_SESSION[$type]) > 0);
+		return (array_key_exists($type, $_SESSION) && is_array($_SESSION[$type]) && count($_SESSION[$type]) > 0);
 	}
 }
 
