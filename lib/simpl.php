@@ -1,55 +1,96 @@
 <?php namespace Simpl;
 
-// Include the Config
-include_once(__DIR__ . '/config.php');
-include_once(__DIR__ . '/functions.php');
+require __DIR__ . '/functions.php';
 
 /**
  * Base PHPSimpl Class used to control Simpl at its highest level
- *
- * @author Nick DeNardis <nick.denardis@gmail.com>
- * @link http://code.google.com/p/phpsimpl/
  */
-class Simpl {
+class Simpl extends \Pimple {
     /**
-     * @var array
+     * @var registry
      */
-    public $settings = array('form' => array(
-        'required_indicator' => 'before',
-        'label_ending' => ':'
-    ));
+    protected static $registry = array();
 
     /**
-     * Class Construåctor
-     *
-     * Creates a Simpl Class with nothing in it
+     * Class Constructor
      *
      * @return \Simpl\Simpl
      */
-    public function __construct(){
-        // Clear the Cache if needed
-        if (isset($_GET['clear']) || CLEAR_CACHE === true)
-            $this->ClearCache('clear');
+    public function __construct()
+    {
+        $this->loadConfig();
     }
 
     /**
-     * Load a class file when needed.
-     *
-     * @depricated
-     * @param $class A string containing the class name
-     * @return bool
+     * @param array $app_config
      */
-    public function Load($class){
-        // Depricated but used for backwards compatibility
-        if (!class_exists($class)){
-            switch($class){
-                case 'Feed':
-                    include_once(FS_SIMPL . 'feed.php');
-                    break;
-            }
+    public function loadConfig($app_config = array()) {
+        $config = require __DIR__ . '/config.php';
+        foreach (array_merge($config, $app_config) as $key => $value) {
+            $this[$key] = $value;
+        }
+    }
+
+    public function start() {
+        $this['db'] = $this->share( function(Simpl $c) {
+            $db = new DB($c['db_host'], $c['db_user'], $c['db_pass'], $c['db_default']);
+            $db->DbConnect();
+            return $db;
+        });
+
+        $this['session'] = $this->share( function(Simpl $c) {
+            return new Session($c['db'], $this['db_default']);
+        });
+
+        $this['validate'] = $this->share( function(Simpl $c) {
+           return new Validate;
+        });
+    }
+
+    /**
+     * @param string $env
+     * @return string
+     */
+    public function detectEnvironment($env = '') {
+        return (getenv('PHP_ENV'))?:$env;
+    }
+
+    /**
+     * Add a new resolver to the registry array.
+     * @param  string $name The id
+     * @param object|\Simpl\Closure $resolve Closure that creates instance
+     * @return void
+     */
+    public static function register($name, Closure $resolve)
+    {
+        static::$registry[$name] = $resolve;
+    }
+
+    /**
+     * Create the instance
+     * @param  string $name The id
+     * @throws Exception
+     * @return mixed
+     */
+    public static function resolve($name)
+    {
+        if ( static::registered($name) )
+        {
+            $name = static::$registry[$name];
+            return $name();
         }
 
-        return true;
+        throw new Exception('Nothing registered with that name, fool.');
+    }
+
+    /**
+     * Determine whether the id is registered
+     * @param  string $name The id
+     * @return bool Whether to id exists or not
+     */
+    public static function registered($name)
+    {
+        return array_key_exists($name, static::$registry);
     }
 
     /**
@@ -57,7 +98,7 @@ class Simpl {
      *
      * @param string $action
      * @return bool
-     */
+
     public function ClearCache($action){
         switch($action){
             case 'clear':
@@ -77,24 +118,5 @@ class Simpl {
 
         return true;
     }
+     */
 }
-
-// If using DB Sessions
-if ( DB_SESSIONS == true ){
-    // Create the DB Session
-    $s = new Session((defined('DB_CMS'))?DB_CMS:DB_DEFAULT);
-
-    //Change the save_handler to use the class functions
-    session_set_save_handler (
-        array(&$s, 'open'),
-        array(&$s, 'close'),
-        array(&$s, 'read'),
-        array(&$s, 'write'),
-        array(&$s, 'destroy'),
-        array(&$s, 'gc')
-    );
-}
-
-// Start a session if not already started
-if (session_id() == '')
-    @session_start();

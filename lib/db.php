@@ -6,7 +6,6 @@
  * Used to interact with the database in a sane manner
  *
  * @author Nick DeNardis <nick.denardis@gmail.com>
- * @link http://code.google.com/p/phpsimpl/
  */
 class DB extends Simpl {
     /**
@@ -36,31 +35,21 @@ class DB extends Simpl {
     private $db_link;
 
     /**
-     * @var
-     */
-    private static $factory;
-
-    /**
      * Class Constructor
      *
      * Creates a DB Class with all the information to use the DB
      *
+     * @param string $server
+     * @param string $username
+     * @param string $password
+     * @param null|string $database
      * @return \Simpl\DB
      */
-    public function __construct(){
-		$this->connected = false;	
+    public function __construct($server=DB_HOST, $username=DB_USER, $password=DB_PASS, $database=DB_DEFAULT){
+		$this->connected = false;
     	$this->query_count = 0;
-    }
 
-    /**
-     * @return string
-     */
-    public static function getConnection() {
-        if (!self::$factory) {
-            self::$factory = new DB;
-            self::$factory->Connect();
-        }
-        return self::$factory;
+        $this->Connect($server, $username, $password, $database);
     }
 
     /**
@@ -72,7 +61,7 @@ class DB extends Simpl {
 	 * @param string $database
 	 * @return bool
 	 */
-	public function Connect($server=DB_HOST, $username=DB_USER, $password=DB_PASS, $database=DB_DEFAULT){
+	public function Connect($server='', $username='', $password='', $database=''){
 		// Save the config till we are ready to connect
 		if (!$this->connected)
 			$this->config = array($server,$username,$password,$database);

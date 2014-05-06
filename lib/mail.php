@@ -6,7 +6,6 @@
  * Used to create and send emails with attachments.
  *
  * @author Nick DeNardis <nick.denardis@gmail.com>
- * @link http://code.google.com/p/phpsimpl/
  */
 class Mail {
 	/**

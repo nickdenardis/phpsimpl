@@ -22,6 +22,14 @@ class Form {
 	 */
 	protected $prefix;
 
+    /**
+     * @var array
+     */
+    public $settings = array('form' => array(
+        'required_indicator' => 'before',
+        'label_ending' => ':'
+    ));
+
 
     /**
      * Class Constructor

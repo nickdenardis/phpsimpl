@@ -8,7 +8,7 @@
  * @author Nick DeNardis <nick.denardis@gmail.com>
  * @link http://code.google.com/p/phpsimpl/
  */
-class Validate extends Simpl {
+class Validate {
 	/**
 	 * @var array
 	 */

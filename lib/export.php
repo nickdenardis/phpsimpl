@@ -4,7 +4,6 @@
  * Base class for exporting data in various formats
  *
  * @author Nick DeNardis <nick.denardis@gmail.com>
- * @link http://code.google.com/p/phpsimpl/
  */
 class Export {
 	/**

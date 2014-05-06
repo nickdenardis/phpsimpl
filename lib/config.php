@@ -1,44 +1,63 @@
 <?php
+return array(
+    // Debug everything, set only if you need to know exactly what is going on
+    'debug' => false,
+
+    // Debug only raw queries
+    'debug_query' => false,
+
+    // Store all the debug info in a debug log file
+    'debug_log' => false,
+
+    // Use a file cache to store the data structures (recommended)
+    'use_cache' => false,
+
+    // Pull the ENUM data from database as options (only use if your tables have ENUM data)
+    'use_enum' => true,
+
+    // Cache query results to a file for faster re-queries
+    'query_cache' => false,
+
+    // Store the session data in a table (import the table from the examples)
+    'db_sessions' => false,
+
+    // Log all database queries
+    'db_log' => false,
+
+    // For clearing the cache
+    'clear_cache' => false,
+
+    // Cache directory (always use trailing slash)
+    'fs_cache' => 'cache/',
+
+    'db_host' => '',
+    'db_user' => '',
+    'db_pass' => '',
+    'db_default' => ''
+);
+
+/*
 // Override the IP address if in a load balanced environment
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
     $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
 
-// Debug everything, set only if you need to know exactly what is going on
-if (!defined('DEBUG')) define('DEBUG', false);
-// Debug only raw queies
-if (!defined('DEBUG_QUERY')) define('DEBUG_QUERY', false);
-// Store all the debug info in a debug log file
-if (!defined('DEBUG_LOG')) define('DEBUG_LOG', false);
-// Use a file cache to store the data structures (recommended)
-if (!defined('USE_CACHE')) define('USE_CACHE', true);
-// Pull the ENUM data from database as options (only use if your tables have ENUM data)
-if (!defined('USE_ENUM')) define('USE_ENUM', false);
-// Cache query results to a file for faster re-queries
-if (!defined('QUERY_CACHE')) define('QUERY_CACHE', false);
-// Store the session data in a table (import the table from the examples)
-if (!defined('DB_SESSIONS')) define('DB_SESSIONS', false);
-// Log all database queries
-if (!defined('DB_LOG')) define('DB_LOG', false);
-// For clearing the cache
-if (!defined('CLEAR_CACHE')) define('CLEAR_CACHE', false);
+// If using DB Sessions
+if ( DB_SESSIONS == true ){
+    // Create the DB Session
+    $s = new Session((defined('DB_CMS'))?DB_CMS:DB_DEFAULT);
 
-// Table Stripes
-if (!defined('SIMPL_TABLE_STRIPES')) define('SIMPL_TABLE_STRIPES', true);
+    //Change the save_handler to use the class functions
+    session_set_save_handler (
+        array(&$s, 'open'),
+        array(&$s, 'close'),
+        array(&$s, 'read'),
+        array(&$s, 'write'),
+        array(&$s, 'destroy'),
+        array(&$s, 'gc')
+    );
+}
 
-// Where things are sitting
-// Always Include trailing slash "/" in Direcories
-if (!defined('DIR_ABS')) define('DIR_ABS','./');
-if (!defined('WS_SIMPL')) define('WS_SIMPL','simpl/');
-if (!defined('WS_SIMPL_IMAGE')) define('WS_SIMPL_IMAGE','img/');
-if (!defined('WS_SIMPL_INC')) define('WS_SIMPL_INC','inc/');
-if (!defined('WS_SIMPL_CSS')) define('WS_SIMPL_CSS','css/');
-if (!defined('WS_SIMPL_JS')) define('WS_SIMPL_JS','js/');
-if (!defined('WS_CACHE')) define('WS_CACHE','cache/');
-if (!defined('FS_SIMPL')) define('FS_SIMPL',DIR_ABS . WS_SIMPL);
-if (!defined('FS_CACHE')) define('FS_CACHE',FS_SIMPL . WS_CACHE);
-
-// Database Connection Option
-if (!defined('DB_USER')) define('DB_USER',DBUSER);
-if (!defined('DB_HOST')) define('DB_HOST',DBHOST);
-if (!defined('DB_PASS')) define('DB_PASS',DBPASS);
-if (!defined('DB_DEFAULT')) define('DB_DEFAULT', NULL);
+// Start a session if not already started
+if (session_id() == '')
+    @session_start();
+*/

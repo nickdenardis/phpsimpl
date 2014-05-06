@@ -5,7 +5,6 @@
  * Needs to be extended to do anything out of the ordinary
  *
  * @author Nick DeNardis <nick.denardis@gmail.com>
- * @link http://code.google.com/p/phpsimpl/
  */
 class DbTemplate extends Form {
 	/**
@@ -53,23 +52,30 @@ class DbTemplate extends Form {
 	 */
 	private $group_by;
 
-    private $db_link;
+    /**
+     * @var
+     */
+    protected $db_link;
 
     /**
      * DbTemplate Constructor
      *
      * @param string $table Table name
      * @param string $database Database name
+     * @param DB $db_link
      * @return \Simpl\DbTemplate
      */
-	public function __construct($table, $database){
+	public function __construct($table, $database, \Simpl\DB $db_link){
+        $this->db_link = $db_link;
 		$this->table = $table;
 		$this->database = $database;
 
-        $this->db_link = DB::getConnection();
+        //$this->db_link = DB::getConnection();
 
 		// Pull the cache if available
 		$cache = $this->Cache('get', 'table_' . $this->table . '.cache.php', '', '1 day');
+
+        dd($this);
 
 		// Read the cache if possible
 		if (USE_CACHE == true && $cache != ''){

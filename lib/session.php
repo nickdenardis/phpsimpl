@@ -4,30 +4,29 @@
  * Used to store sessions in the Database
  *
  * @author Nick DeNardis <nick.denardis@gmail.com>
- * @link http://code.google.com/p/phpsimpl/
  */
 class Session {
 	private $ses_id;
-	private $db;
+	private $db_name;
 	private $table;
 	private $ses_life;
 	private $ses_start;
-	private $fingerprintKey = 'sdfkj43545lkjlkmndsf89a*(&(Nhnkj2h349*&(';
-	private $threshold = 25;
-	static private $fingerprintChecks = 0;
     private $db_link;
 
     /**
      * Class Constructor
      *
-     * @param $db string
+     * @param \Simpl\DB $db_link
+     * @param string $db_name
      * @param $table string
+     * @internal param string $db
+     * @internal param string $db
      * @return \Simpl\Session
      */
-	public function __construct($db, $table = 'session'){
-		$this->db = $db;
+	public function __construct(DB $db_link, $db_name = '', $table = 'session'){
 		$this->table = $table;
-        $this->db_link = DB::getConnection();
+        $this->db_name = $db_name;
+        $this->db_link = $db_link;
 	}
 	
 	/**
@@ -59,7 +58,7 @@ class Session {
 	 */
 	public function read($ses_id){
 		$session_sql = 'SELECT * FROM `' . $this->table . '` WHERE ses_id = \'' . $ses_id . '\' LIMIT 1';
-		$session_res = $this->db_link->Query($session_sql, $this->db, false);
+		$session_res = $this->db_link->Query($session_sql, $this->db_name, false);
 
 		if (!$session_res){
 			return '';
@@ -88,7 +87,7 @@ class Session {
 			$this->ses_start = time();
 
 		$session_sql = 'SELECT * FROM `' . $this->table . '` WHERE `ses_id` = \'' . $ses_id . '\' LIMIT 1';
-		$res = $this->db_link->Query($session_sql, $this->db, false);
+		$res = $this->db_link->Query($session_sql, $this->db_name, false);
 		
 		if($this->db_link->NumRows($res) == 0) {
 			$type = 'insert';
@@ -101,7 +100,7 @@ class Session {
 		}
 
 		// Do the Operation
-		$session_res = $this->db_link->Perform($this->table, $info, $type, $extra, $this->db, false);
+		$session_res = $this->db_link->Perform($this->table, $info, $type, $extra, $this->db_name, false);
 		if (!$session_res)
 			return false;
 		
@@ -116,7 +115,7 @@ class Session {
 	 */
 	public function destroy($ses_id){
 		$session_sql = 'DELETE FROM `' . $this->table . '` WHERE `ses_id` = \'' . $ses_id . '\' LIMIT 1';
-        $this->db_link->Query($session_sql, $this->db, false);
+        $this->db_link->Query($session_sql, $this->db_name, false);
 		
 		return true;
 	}
@@ -129,7 +128,7 @@ class Session {
 	public function gc(){
 		$ses_life = time() - $this->ses_life;
 		$session_sql = 'DELETE FROM `' . $this->table . '` WHERE `last_access` < ' . $ses_life . '';
-		$session_res = $this->db_link->Query($session_sql, $this->db, false);
+		$session_res = $this->db_link->Query($session_sql, $this->db_name, false);
 
 		if (!$session_res)
 			return false;

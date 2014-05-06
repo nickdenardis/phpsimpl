@@ -18,7 +18,8 @@
         "source": "https://github.com/nickdenardis/phpsimpl"
     },
     "require": {
-        "php": ">=5.2"
+        "php": ">=5.3",
+        "pimple/pimple": "~2.1"
     },
     "autoload": {
         "classmap": [
