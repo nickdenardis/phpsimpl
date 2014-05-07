@@ -91,7 +91,7 @@ class DbTemplate extends Form {
 			$this->ParseTable();
 
 			// If Use Cache try to save it
-			if (USE_CACHE == true)
+			if ($this->app['use_cache'] == true)
 				$this->Cache('set', 'table_' . $this->table . '.cache.php', $this->fields);
 		}
 		

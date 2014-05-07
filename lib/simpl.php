@@ -32,6 +32,7 @@ class Simpl extends \Pimple {
         $this['db'] = $this->share( function(Simpl $c) {
             $db = new DB($c['db_host'], $c['db_user'], $c['db_pass'], $c['db_default']);
             $db->setDebug($c['debug']);
+            $db->setQueryCache($c['query_cache']);
             $db->setFsCache($c['fs_cache']);
             $db->setDbLog($c['db_log']);
             $db->setQueryLog($c['query_log']);

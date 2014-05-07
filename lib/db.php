@@ -55,6 +55,16 @@ class DB extends Simpl {
     protected $db_log = false;
 
     /**
+     * @var bool
+     */
+    protected $debug_query = false;
+
+    /**
+     * @var bool
+     */
+    protected $query_cache = true;
+
+    /**
      * Class Constructor
      *
      * Creates a DB Class with all the information to use the DB
@@ -141,8 +151,9 @@ class DB extends Simpl {
 			$start = explode(' ',microtime());
 			$start = (float)$start[1] + (float)$start[0];
 		}
-		
-		Debug('Query: ' . $query, 'query');
+
+        if ($this->debug_query)
+		    Debug('Query: ' . $query, 'query');
 		
 		// Default is not to read cache
 		$is_cache = false;
@@ -352,7 +363,7 @@ class DB extends Simpl {
 	 */
 	public function FetchArray($result) {
 		// Determine weather to get the result from an array or mysql
-		if (QUERY_CACHE && is_array($this->results))
+		if ($this->query_cache && is_array($this->results))
 			return array_shift($this->results);
 		else
 			return mysql_fetch_array($result, MYSQL_ASSOC);
@@ -366,7 +377,7 @@ class DB extends Simpl {
 	 */
 	public function NumRows($result) {
 		// Determine where to find the number of rows
-		if (QUERY_CACHE && is_array($result)){
+		if ($this->query_cache && is_array($result)){
 			return count($this->results);
 		}else{
 			return mysql_num_rows($result);
@@ -501,6 +512,22 @@ class DB extends Simpl {
     public function setQueryLog($query_log)
     {
         $this->query_log = $query_log;
+    }
+
+    /**
+     * @param boolean $debug_query
+     */
+    public function setDebugQuery($debug_query)
+    {
+        $this->debug_query = $debug_query;
+    }
+
+    /**
+     * @param boolean $query_cache
+     */
+    public function setQueryCache($query_cache)
+    {
+        $this->query_cache = $query_cache;
     }
 
     /**
