@@ -35,6 +35,26 @@ class DB extends Simpl {
     private $db_link;
 
     /**
+     * @var string
+     */
+    protected $fs_cache = 'cache/';
+
+    /**
+     * @var bool
+     */
+    protected $debug = false;
+
+    /**
+     * @var bool
+     */
+    protected $query_log = false;
+
+    /**
+     * @var bool
+     */
+    protected $db_log = false;
+
+    /**
      * Class Constructor
      *
      * Creates a DB Class with all the information to use the DB
@@ -117,7 +137,7 @@ class DB extends Simpl {
      */
 	public function Query($query, $db='', $cache=true, $log=true) {
 		// Track the start time of the query
-		if (DB_LOG && $log){
+		if ($this->db_log && $log){
 			$start = explode(' ',microtime());
 			$start = (float)$start[1] + (float)$start[0];
 		}
@@ -128,9 +148,9 @@ class DB extends Simpl {
 		$is_cache = false;
 		
 		// If we can look for cache
-		if ($cache && QUERY_CACHE && strtolower(substr($query,0,6)) == 'select' && is_writable(FS_CACHE)){
+		if ($cache && $this->query_cache && strtolower(substr($query,0,6)) == 'select' && is_writable($this->fs_cache)){
 			// Format the cache file
-			$cache_file = FS_CACHE . 'query_' . bin2hex(md5($query, TRUE)) . '.cache.php';
+			$cache_file = $this->fs_cache . 'query_' . bin2hex(md5($query, TRUE)) . '.cache.php';
 			$is_cache = true;
 			
 			// If there is a cache file
@@ -151,14 +171,12 @@ class DB extends Simpl {
 		}
 		
 		// Display the query if needed
-		if (DEBUG_QUERY == true){
+		if ($this->debug_query == true){
 			echo '<pre class="debug">';
 			print_r($query);
 			echo '</pre>';
 		}
-        if ($this->db_link == NULL) {
-            Pre($this->Nice());
-        }
+
 		// Do the Query
     	$result = mysql_query($query, $this->db_link) or $this->Error($query, mysql_errno(), mysql_error());
     	
@@ -170,7 +188,7 @@ class DB extends Simpl {
     		$this->Change($old_db);
     		
     	// Track the total time of the request
-    	if (DB_LOG && $log){
+    	if ($this->db_log && $log){
 			$end = explode(' ',microtime());
 			$end = (float)$end[1] + (float)$end[0];
 			$time_take = sprintf('%.6f',(float)$end - (float)$start);
@@ -295,8 +313,9 @@ class DB extends Simpl {
     	if ($this->db_link && @mysql_select_db($database)){
 			// Increment the query counter
     		$this->query_count++;
-    		
-    		Debug('DbChange(), Changed database to: ' . $database);
+
+            if ($this->debug)
+    		    Debug('DbChange(), Changed database to: ' . $database);
     		
 			return true;
     	}
@@ -317,11 +336,12 @@ class DB extends Simpl {
 	public function Error($query, $errno, $error) {
 		// Close the Database Connection
 		$this->Close();
-		
-		Debug('DbError(), ' . $errno . ' - ' . $error . ' - ' . $query);
+
+        if ($this->debug)
+		    Debug('DbError(), ' . $errno . ' - ' . $error . ' - ' . $query);
 		
 		// Kill the Script
-  		die('<div class="db-error"><h1>' . $errno . ' - ' . $error . '</h1><p>' . $query . '</p></div>');
+  		die('<div class="db-error"><h1>' . $errno . ' - ' . $error . '</h1></div>');
 	}
 	
 	/**
@@ -434,4 +454,78 @@ class DB extends Simpl {
 		// Escape the values from SQL injection
 		return (is_numeric($string))?addslashes($string):mysql_real_escape_string($string);
 	}
+
+    /**
+     * @return string
+     */
+    public function getDatabase()
+    {
+        return $this->database;
+    }
+
+    /**
+     * @param string $database
+     */
+    public function setDatabase($database)
+    {
+        $this->database = $database;
+    }
+
+    /**
+     * @param boolean $debug
+     */
+    public function setDebug($debug)
+    {
+        $this->debug = $debug;
+    }
+
+    /**
+     * @param string $fs_cache
+     */
+    public function setFsCache($fs_cache)
+    {
+        $this->fs_cache = $fs_cache;
+    }
+
+    /**
+     * @param boolean $db_log
+     */
+    public function setDbLog($db_log)
+    {
+        $this->db_log = $db_log;
+    }
+
+    /**
+     * @param boolean $query_log
+     */
+    public function setQueryLog($query_log)
+    {
+        $this->query_log = $query_log;
+    }
+
+    /**
+     * Does various Actions with the Cache
+     *
+     * @param string $action
+     * @return bool
+    */
+    public function ClearCache($action){
+        switch($action){
+            case 'clear':
+                $files = glob($this->fs_cache . "*.cache.php");
+            break;
+            case 'clear_query':
+                $files = glob($this->fs_cache . "query_*.cache.php");
+            break;
+            case 'clear_table':
+                $files = glob($this->fs_cache . "table_*.cache.php");
+            break;
+        }
+
+        if (is_array($files))
+            foreach($files as $file)
+                unlink($file);
+
+        return true;
+    }
 }

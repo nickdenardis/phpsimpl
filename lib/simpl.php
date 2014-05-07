@@ -7,11 +7,6 @@ require __DIR__ . '/functions.php';
  */
 class Simpl extends \Pimple {
     /**
-     * @var registry
-     */
-    protected static $registry = array();
-
-    /**
      * Class Constructor
      *
      * @return \Simpl\Simpl
@@ -19,6 +14,8 @@ class Simpl extends \Pimple {
     public function __construct()
     {
         $this->loadConfig();
+
+        $this->startSession();
     }
 
     /**
@@ -34,6 +31,10 @@ class Simpl extends \Pimple {
     public function start() {
         $this['db'] = $this->share( function(Simpl $c) {
             $db = new DB($c['db_host'], $c['db_user'], $c['db_pass'], $c['db_default']);
+            $db->setDebug($c['debug']);
+            $db->setFsCache($c['fs_cache']);
+            $db->setDbLog($c['db_log']);
+            $db->setQueryLog($c['query_log']);
             $db->DbConnect();
             return $db;
         });
@@ -55,68 +56,26 @@ class Simpl extends \Pimple {
         return (getenv('PHP_ENV'))?:$env;
     }
 
-    /**
-     * Add a new resolver to the registry array.
-     * @param  string $name The id
-     * @param object|\Simpl\Closure $resolve Closure that creates instance
-     * @return void
-     */
-    public static function register($name, Closure $resolve)
+    public function startSession()
     {
-        static::$registry[$name] = $resolve;
-    }
+        // If using DB Sessions
+        if ($this['db_sessions'] == true) {
+            // Create the DB Session
+            $s = $this['session'];
 
-    /**
-     * Create the instance
-     * @param  string $name The id
-     * @throws Exception
-     * @return mixed
-     */
-    public static function resolve($name)
-    {
-        if ( static::registered($name) )
-        {
-            $name = static::$registry[$name];
-            return $name();
+            //Change the save_handler to use the class functions
+            session_set_save_handler(
+                array(&$s, 'open'),
+                array(&$s, 'close'),
+                array(&$s, 'read'),
+                array(&$s, 'write'),
+                array(&$s, 'destroy'),
+                array(&$s, 'gc')
+            );
         }
 
-        throw new Exception('Nothing registered with that name, fool.');
+        // Start a session if not already started
+        if (session_id() == '')
+            @session_start();
     }
-
-    /**
-     * Determine whether the id is registered
-     * @param  string $name The id
-     * @return bool Whether to id exists or not
-     */
-    public static function registered($name)
-    {
-        return array_key_exists($name, static::$registry);
-    }
-
-    /**
-     * Does various Actions with the Cache
-     *
-     * @param string $action
-     * @return bool
-
-    public function ClearCache($action){
-        switch($action){
-            case 'clear':
-                $files = glob(FS_CACHE . "*.cache.php");
-                break;
-            case 'clear_query':
-                $files = glob(FS_CACHE . "query_*.cache.php");
-                break;
-            case 'clear_table':
-                $files = glob(FS_CACHE . "table_*.cache.php");
-                break;
-        }
-
-        if (is_array($files))
-            foreach($files as $file)
-                unlink($file);
-
-        return true;
-    }
-     */
 }

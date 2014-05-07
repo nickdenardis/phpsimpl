@@ -55,30 +55,28 @@ class DbTemplate extends Form {
     /**
      * @var
      */
+    protected $app;
+
+    /**
+     * @var
+     */
     protected $db_link;
 
     /**
-     * DbTemplate Constructor
-     *
-     * @param string $table Table name
-     * @param string $database Database name
-     * @param DB $db_link
-     * @return \Simpl\DbTemplate
+     * @param Simpl $app
+     * @param array|An $table
      */
-	public function __construct($table, $database, \Simpl\DB $db_link){
-        $this->db_link = $db_link;
+    public function __construct(Simpl $app, $table){
 		$this->table = $table;
-		$this->database = $database;
-
-        //$this->db_link = DB::getConnection();
+        $this->app = $app;
+        $this->db_link = $app['db'];
+		$this->database = $this->db_link->getDatabase();
 
 		// Pull the cache if available
 		$cache = $this->Cache('get', 'table_' . $this->table . '.cache.php', '', '1 day');
 
-        dd($this);
-
 		// Read the cache if possible
-		if (USE_CACHE == true && $cache != ''){
+		if ($this->app['use_cache'] == true && $cache != ''){
 			// Get the cached fields
 			$this->fields = unserialize($cache);
 			
@@ -102,7 +100,11 @@ class DbTemplate extends Form {
 
 		return true;
 	}
-	
+
+    function setConnection(DB $db_link){
+        $this->db_link = $db_link;
+    }
+
 	public function __destruct() {
 		// Get a list of all the class variables
 		unset($this);
@@ -1091,7 +1093,7 @@ class DbTemplate extends Form {
 	 */
 	public function Cache($action, $filename, $data='', $max_age=''){
 		// Set the full path
-		$cache_file = FS_CACHE . $filename;
+		$cache_file = $this->app['fs_cache'] . $filename;
 		$cache = '';
 
 		if ($action == 'get'){
@@ -1113,7 +1115,7 @@ class DbTemplate extends Form {
 				}
 			}
 		}else{
-			if (is_writable(FS_CACHE)){
+			if (is_writable($this->app['fs_cache'])){
 				// Serialize the Fields
 				$store = serialize($data);
 
@@ -1184,7 +1186,7 @@ class DbTemplate extends Form {
 			$this->fields[$field->name] = $tmpField;
 		}
 		
-		if (USE_ENUM == true){
+		if ($this->app['use_enum'] == true){
 			// Query for the ENUM information
 			$result2 = $this->db_link->Query('DESCRIBE ' . $this->table, $this->database, false);
 			

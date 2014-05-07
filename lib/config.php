@@ -24,6 +24,9 @@ return array(
     // Log all database queries
     'db_log' => false,
 
+    // Pretty sure this is a duplicate
+    'query_log' => false,
+
     // For clearing the cache
     'clear_cache' => false,
 
@@ -40,24 +43,4 @@ return array(
 // Override the IP address if in a load balanced environment
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
     $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-
-// If using DB Sessions
-if ( DB_SESSIONS == true ){
-    // Create the DB Session
-    $s = new Session((defined('DB_CMS'))?DB_CMS:DB_DEFAULT);
-
-    //Change the save_handler to use the class functions
-    session_set_save_handler (
-        array(&$s, 'open'),
-        array(&$s, 'close'),
-        array(&$s, 'read'),
-        array(&$s, 'write'),
-        array(&$s, 'destroy'),
-        array(&$s, 'gc')
-    );
-}
-
-// Start a session if not already started
-if (session_id() == '')
-    @session_start();
 */
