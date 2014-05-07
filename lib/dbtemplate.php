@@ -427,10 +427,10 @@ class DbTemplate extends Form {
 
 			// Create the filters
 			foreach($values as $name=>$value){
-				$where .= ((string)$value != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE':'=') . ' \'' . $this->Prepare($value) . '\' AND ':'';
+				$where .= ((string)$value != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE':'=') . ' \'' . $this->db_link->Prepare($value) . '\' AND ':'';
 			
 				// Create the search
-				$search .= ($class->search != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE \'%' . $this->Prepare($class->search) . '%\'':' = \'' . $this->Prepare($class->search) . '\'') . ' OR ':'';
+				$search .= ($class->search != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE \'%' . $this->db_link->Prepare($class->search) . '%\'':' = \'' . $this->db_link->Prepare($class->search) . '\'') . ' OR ':'';
 			}
 			
 			// Create the return fields
