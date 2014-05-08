@@ -416,78 +416,78 @@ class DbTemplate extends Form {
 
         // Setup the return fields
         if (!$this->isMultiArray($fields))
-            array_unshift($returns, $fields);
+        	array_unshift($returns, $fields);
         else
-            $returns = $fields;
+        	$returns = $fields;
 
         // Initiate all vars
         $where = $search = $return = $join = '';
 
         // Loop through all the joined classes
         foreach($this->join_class as $key=>$class){
-            // Get the values of the class
-            $values = $class->GetValues();
+        	// Get the values of the class
+        	$values = $class->GetValues();
 
-            // Create the filters
-            foreach($values as $name=>$value){
-                $where .= ((string)$value != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE':'=') . ' \'' . $this->db_link->Prepare($value) . '\' AND ':'';
+        	// Create the filters
+        	foreach($values as $name=>$value){
+        		$where .= ((string)$value != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE':'=') . ' \'' . $this->db_link->Prepare($value) . '\' AND ':'';
 
-                // Create the search
-                $search .= ($class->search != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE \'%' . $this->db_link->Prepare($class->search) . '%\'':' = \'' . $this->db_link->Prepare($class->search) . '\'') . ' OR ':'';
-            }
+        		// Create the search
+        		$search .= ($class->search != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE \'%' . $this->db_link->Prepare($class->search) . '%\'':' = \'' . $this->db_link->Prepare($class->search) . '\'') . ' OR ':'';
+        	}
 
-            // If there are conditions on the joined class tack them on to the current class conditions
-            if ($class->conditions != ''){
-                $this->conditions .= (($this->conditions != '')?' AND ':'') . $class->conditions;
-            }
-
-            // Create the return fields
-            if (isset($returns[$key]) && is_array($returns[$key]) && count($returns[$key]) > 0){
-                // Require primary key returned
-                if ($class->primary != '' && !in_array($class->primary,$returns[$key]))
-                    $return .= '`' . $class->database . '`.`' . $class->table . '`.' . $class->primary . ', ';
-
-                // List all other fields to be returned
-                foreach($returns[$key] as $field){
-                    if (!is_array($field))
-                        $return .= (trim($field) != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $field . ', ':'';
-                    else
-                        foreach($field as $sub_field)
-                            $return .= (trim($sub_field) != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $sub_field . ', ':'';
+                // If there are conditions on the joined class tack them on to the current class conditions
+                if ($class->conditions != ''){
+                    $this->conditions .= (($this->conditions != '')?' AND ':'') . $class->conditions;
                 }
-            }else{
-                $return .= '`' . $class->database . '`.`' . $class->table . '`.*, ';
-            }
 
-            // Create the Joins
-            if ($key > 0)
-                $join .= ' ' . $this->join_type[$key] . ' JOIN `' . $this->join_class[$key]->database . '`.`' . $this->join_class[$key]->table . '` ON (`' . $this->join_class[$key]->database . '`.`' . $this->join_class[$key]->table . '`.' . $this->join_on[$key][0] . ' = `' . $this->database . '`.`' . $this->table . '`.' . $this->join_on[$key][1] . ') ';
+        	// Create the return fields
+        	if (isset($returns[$key]) && is_array($returns[$key]) && count($returns[$key]) > 0){
+        		// Require primary key returned
+        		if ($class->primary != '' && !in_array($class->primary,$returns[$key]))
+        			$return .= '`' . $class->database . '`.`' . $class->table . '`.' . $class->primary . ', ';
 
-            // Add the search to the where
-            if ($search != '')
-                $where .= '(' . substr($search,0,-4) . ') AND ';
+        		// List all other fields to be returned
+        		foreach($returns[$key] as $field){
+        			if (!is_array($field))
+        				$return .= (trim($field) != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $field . ', ':'';
+        			else
+        				foreach($field as $sub_field)
+        					$return .= (trim($sub_field) != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $sub_field . ', ':'';
+        		}
+        	}else{
+        		$return .= '`' . $class->database . '`.`' . $class->table . '`.*, ';
+        	}
 
-            // Reset the search
-            $search = '';
+        	// Create the Joins
+        	if ($key > 0)
+        		$join .= ' ' . $this->join_type[$key] . ' JOIN `' . $this->join_class[$key]->database . '`.`' . $this->join_class[$key]->table . '` ON (`' . $this->join_class[$key]->database . '`.`' . $this->join_class[$key]->table . '`.' . $this->join_on[$key][0] . ' = `' . $this->database . '`.`' . $this->table . '`.' . $this->join_on[$key][1] . ') ';
+
+        	// Add the search to the where
+        	if ($search != '')
+        		$where .= '(' . substr($search,0,-4) . ') AND ';
+
+        	// Reset the search
+        	$search = '';
         }
 
         // Special count case
         if ($returns[0] == 'count')
-            $return = 'count(*) as `count`, ';
+        	$return = 'count(*) as `count`, ';
 
         // Get the order
         if(is_array($order_by)){
-            foreach($order_by as $key=>$field)
-                $order .= '`' . $this->database . '`.`' . $this->table . '`.' . $field . ((is_array($sort) && $sort[$key] != '')?' ' . $sort[$key] . ', ':', ');
+        	foreach($order_by as $key=>$field)
+        		$order .= '`' . $this->database . '`.`' . $this->table . '`.' . $field . ((is_array($sort) && $sort[$key] != '')?' ' . $sort[$key] . ', ':', ');
         }else{
-            $order = ($order_by != '')?'`' . $this->database . '`.`' . $this->table . '`.' . $order_by . ', ':'';
+        	$order = ($order_by != '')?'`' . $this->database . '`.`' . $this->table . '`.' . $order_by . ', ':'';
         }
 
         $order = substr($order,0,-2);
 
         // Get the sort
         if (!is_array($sort) && $sort != '')
-            $order .= ' ' . $sort;
+        	$order .= ' ' . $sort;
 
         $query = 'SELECT ' . substr($return,0,-2) . ' FROM `' . $this->database . '`.`' . $this->table . '`';
         $query .= ($join != '')?substr($join,0,-1):'';
@@ -502,15 +502,15 @@ class DbTemplate extends Form {
 
         // Get the results
         if ($returns[0] == 'count'){
-            $info = $this->db_link->FetchArray($result);
-            $this->results['count'] = $info['count'];
+        	$info = $this->db_link->FetchArray($result);
+        	$this->results['count'] = $info['count'];
         }else{
-            while ($info = $this->db_link->FetchArray($result)){
-                if ($this->primary != '')
-                    $this->results[$info[$this->primary]] = $info;
-                else
-                    $this->results[] = $info;
-            }
+        	while ($info = $this->db_link->FetchArray($result)){
+        		if ($this->primary != '')
+        			$this->results[$info[$this->primary]] = $info;
+        		else
+        			$this->results[] = $info;
+        	}
         }
         // Pop $this from the array
         array_shift($this->join_class);
