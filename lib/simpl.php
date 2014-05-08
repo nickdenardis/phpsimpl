@@ -28,4 +28,30 @@ class Simpl {
      */
     public function __construct(){
     }
+
+    /**
+     * Does various Actions with the Cache
+     *
+     * @param string $action
+     * @return bool
+     */
+    public function ClearCache($action){
+        switch($action){
+            case 'clear':
+                $files = glob(FS_CACHE . "*.cache.php");
+                break;
+            case 'clear_query':
+                $files = glob(FS_CACHE . "query_*.cache.php");
+                break;
+            case 'clear_table':
+                $files = glob(FS_CACHE . "table_*.cache.php");
+                break;
+        }
+
+        if (is_array($files))
+            foreach($files as $file)
+                unlink($file);
+
+        return true;
+    }
 }
