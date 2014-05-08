@@ -45,6 +45,8 @@ class DB extends Simpl {
     public function __construct(){
         $this->connected = false;
         $this->query_count = 0;
+
+        $this->Connect();
     }
 
     /**
@@ -435,6 +437,9 @@ class DB extends Simpl {
      */
     public function getDatabase()
     {
+        if (!$this->IsConnected())
+            return $this->config[3];
+
         return $this->database;
     }
 }
