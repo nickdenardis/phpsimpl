@@ -1,6 +1,6 @@
 {
     "name": "phpsimpl/simpl",
-    "version": "0.9.1",
+    "version": "1.0.0-dev",
     "type": "library",
     "description": "PHPSimpl - a collection of useful PHP classes",
     "keywords": ["classes"],
