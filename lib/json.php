@@ -1,21 +1,21 @@
 <?php namespace Simpl;
 
     /**
- * Created on Dec 26, 2006
- * Filename json.php
- * 
- * Converts to and from JSON format.
- * 
- * @category
- * @package     Json
- * @author      Michal Migurski <mike-json@teczno.com>
- * @author      Matt Knapp <mdknapp[at]gmail[dot]com>
- * @author      Brett Stimmerman <brettstimmerman[at]gmail[dot]com>
- * @copyright   2005 Michal Migurski
- * @version     CVS: $Id: JSON.php,v 1.31 2006/06/28 05:54:17 migurski Exp $
- * @license     http://www.opensource.org/licenses/bsd-license.php
- * @link        http://pear.php.net/pepr/pepr-proposal-show.php?id=198
- */
+     * Created on Dec 26, 2006
+     * Filename json.php
+     *
+     * Converts to and from JSON format.
+     *
+     * @category
+     * @package     Json
+     * @author      Michal Migurski <mike-json@teczno.com>
+     * @author      Matt Knapp <mdknapp[at]gmail[dot]com>
+     * @author      Brett Stimmerman <brettstimmerman[at]gmail[dot]com>
+     * @copyright   2005 Michal Migurski
+     * @version     CVS: $Id: JSON.php,v 1.31 2006/06/28 05:54:17 migurski Exp $
+     * @license     http://www.opensource.org/licenses/bsd-license.php
+     * @link        http://pear.php.net/pepr/pepr-proposal-show.php?id=198
+     */
 
 // Marker constant for Json::decode(), used to flag stack state
 define('SERVICES_JSON_SLICE',   1);
@@ -36,35 +36,35 @@ define('SERVICES_JSON_SUPPRESS_ERRORS', 32);
  * Converts to and from JSON format.
  */
 class Json{
-	/**
-	* @var int
-	*/
-	private $use;
-   
-   /**
-    * Constructs a new JSON instance
-    *
-    * @param int $use object behavior flags; combine with boolean-OR
-    * @return null
-    */
-	public function Json($use = 0){
+    /**
+     * @var int
+     */
+    private $use;
+
+    /**
+     * Constructs a new JSON instance
+     *
+     * @param int $use object behavior flags; combine with boolean-OR
+     * @return null
+     */
+    public function __construct($use = 0){
         $this->use = $use;
     }
 
-   /**
-    * Convert a string from one UTF-16 char to one UTF-8 char
-    *
-    * Normally should be handled by mb_convert_encoding, but
-    * provides a slower PHP-only method for installations
-    * that lack the multibye string extension.
-    *
-    * @param    string  $utf16  UTF-16 character
-    * @return   string  UTF-8 character
-    * @access   private
-    */
-	private function utf162utf8($utf16){
+    /**
+     * Convert a string from one UTF-16 char to one UTF-8 char
+     *
+     * Normally should be handled by mb_convert_encoding, but
+     * provides a slower PHP-only method for installations
+     * that lack the multibye string extension.
+     *
+     * @param    string  $utf16  UTF-16 character
+     * @return   string  UTF-8 character
+     * @access   private
+     */
+    private function utf162utf8($utf16){
         // Test for function
-        if(function_exists('mb_convert_encoding')) 
+        if(function_exists('mb_convert_encoding'))
             return mb_convert_encoding($utf16, 'UTF-8', 'UTF-16');
 
         $bytes = (ord($utf16{0}) << 8) | ord($utf16{1});
@@ -87,19 +87,19 @@ class Json{
         return '';
     }
 
-   /**
-    * convert a string from one UTF-8 char to one UTF-16 char
-    *
-    * Normally should be handled by mb_convert_encoding, but
-    * provides a slower PHP-only method for installations
-    * that lack the multibye string extension.
-    *
-    * @param    string  $utf8   UTF-8 character
-    * @return   string  UTF-16 character
-    * @access   private
-    */
+    /**
+     * convert a string from one UTF-8 char to one UTF-16 char
+     *
+     * Normally should be handled by mb_convert_encoding, but
+     * provides a slower PHP-only method for installations
+     * that lack the multibye string extension.
+     *
+     * @param    string  $utf8   UTF-8 character
+     * @return   string  UTF-16 character
+     * @access   private
+     */
     private function utf82utf16($utf8){
-       // Test for function
+        // Test for function
         if(function_exists('mb_convert_encoding'))
             return mb_convert_encoding($utf8, 'UTF-16', 'UTF-8');
 
@@ -121,17 +121,17 @@ class Json{
         return '';
     }
 
-   /**
-    * encodes an arbitrary variable into JSON format
-    *
-    * @param    mixed   $var    any number, boolean, string, array, or object to be encoded.
-    *                           see argument 1 to Json() above for array-parsing behavior.
-    *                           if var is a strng, note that encode() always expects it
-    *                           to be in ASCII or UTF-8 format!
-    * @return   mixed   JSON string representation of input var or an error if a problem occurs
-    * @access   public
-    */
-	public function encode($var){
+    /**
+     * encodes an arbitrary variable into JSON format
+     *
+     * @param    mixed   $var    any number, boolean, string, array, or object to be encoded.
+     *                           see argument 1 to Json() above for array-parsing behavior.
+     *                           if var is a strng, note that encode() always expects it
+     *                           to be in ASCII or UTF-8 format!
+     * @return   mixed   JSON string representation of input var or an error if a problem occurs
+     * @access   public
+     */
+    public function encode($var){
         switch (gettype($var)) {
             case 'boolean':
                 return $var ? 'true' : 'false';
@@ -147,7 +147,7 @@ class Json{
                 $ascii = '';
                 $strlen_var = strlen($var);
 
-               // Iterate over every character in the string, escaping with a slash or encoding to UTF-8 where necessary
+                // Iterate over every character in the string, escaping with a slash or encoding to UTF-8 where necessary
                 for ($c = 0; $c < $strlen_var; ++$c) {
                     $ord_var_c = ord($var{$c});
 
@@ -225,23 +225,23 @@ class Json{
                 return '"'.$ascii.'"';
 
             case 'array':
-               /*
-                * As per JSON spec if any array key is not an integer
-                * we must treat the the whole array as an object. We
-                * also try to catch a sparsely populated associative
-                * array with numeric keys here because some JS engines
-                * will create an array with empty indexes up to
-                * max_index which can cause memory issues and because
-                * the keys, which may be relevant, will be remapped
-                * otherwise.
-                *
-                * As per the ECMA and JSON specification an object may
-                * have any string as a property. Unfortunately due to
-                * a hole in the ECMA specification if the key is a
-                * ECMA reserved word or starts with a digit the
-                * parameter is only accessible using ECMAScript's
-                * bracket notation.
-                */
+                /*
+                 * As per JSON spec if any array key is not an integer
+                 * we must treat the the whole array as an object. We
+                 * also try to catch a sparsely populated associative
+                 * array with numeric keys here because some JS engines
+                 * will create an array with empty indexes up to
+                 * max_index which can cause memory issues and because
+                 * the keys, which may be relevant, will be remapped
+                 * otherwise.
+                 *
+                 * As per the ECMA and JSON specification an object may
+                 * have any string as a property. Unfortunately due to
+                 * a hole in the ECMA specification if the key is a
+                 * ECMA reserved word or starts with a digit the
+                 * parameter is only accessible using ECMAScript's
+                 * bracket notation.
+                 */
 
                 // treat as a JSON object
                 if (is_array($var) && count($var) && (array_keys($var) !== range(0, sizeof($var) - 1))) {
@@ -279,14 +279,14 @@ class Json{
         }
     }
 
-   /**
-    * array-walking function for use in generating JSON-formatted name-value pairs
-    *
-    * @param    string  $name   name of key to use
-    * @param    mixed   $value  reference to an array element to be encoded
-    * @return   string  JSON-formatted name-value pair, like '"name":value'
-    * @access   private
-    */
+    /**
+     * array-walking function for use in generating JSON-formatted name-value pairs
+     *
+     * @param    string  $name   name of key to use
+     * @param    mixed   $value  reference to an array element to be encoded
+     * @return   string  JSON-formatted name-value pair, like '"name":value'
+     * @access   private
+     */
     private function name_value($name, $value){
         $encoded_value = $this->encode($value);
 
@@ -296,13 +296,13 @@ class Json{
         return $this->encode(strval($name)) . ':' . $encoded_value;
     }
 
-   /**
-    * reduce a string by removing leading and trailing comments and whitespace
-    *
-    * @param    $str    string      string value to strip of comments and whitespace
-    * @return   string  string value stripped of comments and whitespace
-    * @access   private
-    */
+    /**
+     * reduce a string by removing leading and trailing comments and whitespace
+     *
+     * @param    $str    string      string value to strip of comments and whitespace
+     * @return   string  string value stripped of comments and whitespace
+     * @access   private
+     */
     private function reduce_string($str){
         // eliminate single line comments in '// ...' form
         $str = preg_replace(array('#^\s*//(.+)$#m', '#^\s*/\*(.+)\*/#Us', '#/\*(.+)\*/\s*$#Us'), '', $str);
@@ -311,17 +311,17 @@ class Json{
         return trim($str);
     }
 
-   /**
-    * decodes a JSON string into appropriate variable
-    *
-    * @param    string  $str    JSON-formatted string
-    * @return   mixed   number, boolean, string, array, or object
-    *                   corresponding to given JSON input string.
-    *                   See argument 1 to Json() above for object-output behavior.
-    *                   Note that decode() always returns strings
-    *                   in ASCII or UTF-8 format!
-    * @access   public
-    */
+    /**
+     * decodes a JSON string into appropriate variable
+     *
+     * @param    string  $str    JSON-formatted string
+     * @return   mixed   number, boolean, string, array, or object
+     *                   corresponding to given JSON input string.
+     *                   See argument 1 to Json() above for object-output behavior.
+     *                   Note that decode() always returns strings
+     *                   in ASCII or UTF-8 format!
+     * @access   public
+     */
     public function decode($str){
         $str = $this->reduce_string($str);
 
@@ -466,7 +466,7 @@ class Json{
                             } elseif (reset($stk) == SERVICES_JSON_IN_OBJ) {
                                 // we are in an object, so figure out the property name and set an element in an associative array, for now
                                 $parts = array();
-                                
+
                                 if (preg_match('/^\s*(["\'].*[^\\\]["\'])\s*:\s*(\S.*),?$/Uis', $slice, $parts)) {
                                     // "name":value pair
                                     $key = $this->decode($parts[1]);
@@ -495,8 +495,8 @@ class Json{
                             // found a quote, and we are not inside a string
                             array_push($stk, array('what' => SERVICES_JSON_IN_STR, 'where' => $c, 'delim' => $chrs{$c}));
                         } elseif (($chrs{$c} == $top['delim']) &&
-                                 ($top['what'] == SERVICES_JSON_IN_STR) &&
-                                 ((strlen(substr($chrs, 0, $c)) - strlen(rtrim(substr($chrs, 0, $c), '\\'))) % 2 != 1)) {
+                            ($top['what'] == SERVICES_JSON_IN_STR) &&
+                            ((strlen(substr($chrs, 0, $c)) - strlen(rtrim(substr($chrs, 0, $c), '\\'))) % 2 != 1)) {
                             // found a quote, we're in a string, and it's not escaped we know that it's not escaped becase there is _not_ an odd number of backslashes at the end of the string so far
                             array_pop($stk);
                         } elseif (($chrs{$c} == '[') && in_array($top['what'], array(SERVICES_JSON_SLICE, SERVICES_JSON_IN_ARR, SERVICES_JSON_IN_OBJ))) {
