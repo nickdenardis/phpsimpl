@@ -131,6 +131,7 @@ function a(&$array, $index){
  */
 if (!function_exists('Debug')){
 	function Debug($output, $class=''){
+        /*
         $backtrace = debug_backtrace();
         $debug = array();
         $stack = (isset($backtrace[1]['class']) ? "{$backtrace[1]['class']}::" : '') . (isset($backtrace[1]['function']) ? "{$backtrace[1]['function']}" : '');
@@ -144,7 +145,7 @@ if (!function_exists('Debug')){
 
         print '<pre class="debug' . (($class != '')?' ' . $class:'') . '">' . "{$class}: {$debug}:<br />" . print_r($output, 1) . "\n";
 		
-		/*
+
 		if (DEBUG_LOG === true){
 			 if (!$fp = fopen(FS_CACHE . 'debug.log', "a"))
 			 	return;
