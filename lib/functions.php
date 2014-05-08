@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * @param $item
+ */
+if (!function_exists('dd')) {
+    function dd($item)
+    {
+        die(var_dump($item));
+    }
+}
+
+/**
  * Display an array of alerts with a div class
  *
  * @param $alerts An Array with the alerts

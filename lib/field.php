@@ -70,6 +70,9 @@ class Field {
      */
     private $multi = 0;
 
+    /**
+     * @var Validate
+     */
     protected $validator;
 
     /**
