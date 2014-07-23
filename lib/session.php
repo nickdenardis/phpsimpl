@@ -123,7 +123,7 @@ class Session {
     }
 
     /**
-     * Garbase Collector
+     * Garbage Collector
      *
      * @return bool
      */
@@ -135,6 +135,15 @@ class Session {
         if (!$session_res)
             return false;
 
+        return true;
+    }
+
+    /**
+     * Defer Garbage Collection
+     *
+     * @return bool
+     */
+    public function gc_defer(){
         return true;
     }
 }

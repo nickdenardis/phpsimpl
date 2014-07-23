@@ -29,7 +29,7 @@ if ( DB_SESSIONS == true ){
         array(&$session, 'read'),
         array(&$session, 'write'),
         array(&$session, 'destroy'),
-        array(&$session, 'gc')
+        array(&$session, (DB_SESSIONS_GC)?'gc':'gc_defer')
     );
 }
 
