@@ -17,6 +17,8 @@ if (!defined('USE_ENUM')) define('USE_ENUM', false);
 if (!defined('QUERY_CACHE')) define('QUERY_CACHE', false);
 // Store the session data in a table (import the table from the examples)
 if (!defined('DB_SESSIONS')) define('DB_SESSIONS', false);
+// Enable the garbage collection of session each page load
+if (!defined('DB_SESSIONS_GC')) define('DB_SESSIONS_GC', true);
 // Log all database queries
 if (!defined('DB_LOG')) define('DB_LOG', false);
 // For clearing the cache
