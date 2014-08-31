@@ -126,11 +126,33 @@ if (!function_exists('h')){
  * @param $index String
  * @return string
  */
-function a(&$array, $index){
-    if (is_array($array) && isset($index[$array]))
-        return $array[$index];
+if ( ! function_exists('a') ) {
+  function a(&$array, $index){
+      if (is_array($array) && isset($index[$array]))
+          return $array[$index];
 
-    return false;
+      return false;
+  }
+}
+
+/**
+ * Safely define a constant without throwing a notice
+ *
+ * @param $key String
+ * @param $value String
+ * @return bool
+ */
+// Create a safe define function to avoid notices
+if ( ! function_exists('safeDefine') ) {
+    function safeDefine($key, $value)
+    {
+        if ( ! defined(strtoupper($key)) ){
+            define(strtoupper($key), $value);
+            return true;
+        }
+
+        return false;
+    }
 }
 
 /**
