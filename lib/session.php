@@ -128,6 +128,9 @@ class Session {
      * @return bool
      */
     public function gc(){
+        if (!DB_SESSIONS_GC )
+            return $this->gc_defer();
+
         $ses_life = time() - $this->ses_life;
         $session_sql = 'DELETE FROM `' . $this->table . '` WHERE `last_access` < ' . $ses_life . '';
         $session_res = $this->db_link->Query($session_sql, $this->db, false);
