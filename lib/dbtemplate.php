@@ -52,8 +52,10 @@ class DbTemplate extends Form {
      * @var string
      */
     private $group_by;
-
-    private $db_link;
+    /**
+     * @var \Simpl\DB
+     */
+    protected $db_link;
 
     /**
      * DbTemplate Constructor
