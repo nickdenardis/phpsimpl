@@ -52,8 +52,10 @@ class DbTemplate extends Form {
      * @var string
      */
     private $group_by;
-
-    private $db_link;
+    /**
+     * @var \Simpl\DB
+     */
+    protected $db_link;
 
     /**
      * DbTemplate Constructor
@@ -67,9 +69,6 @@ class DbTemplate extends Form {
         $this->table = $table;
 
         $this->db_link = $db_link;
-
-        $this->database = $this->db_link->getDatabase();
-
 
         // Pull the cache if available
         $cache = $this->Cache('get', 'table_' . $this->table . '.cache.php', '', '1 day');
