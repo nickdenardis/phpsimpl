@@ -68,9 +68,6 @@ class DbTemplate extends Form {
 
         $this->db_link = $db_link;
 
-        $this->database = $this->db_link->getDatabase();
-
-
         // Pull the cache if available
         $cache = $this->Cache('get', 'table_' . $this->table . '.cache.php', '', '1 day');
 
