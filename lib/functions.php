@@ -255,13 +255,16 @@ if (!function_exists('DateTimeDiff')){
 }
 
 function search_split_terms($terms){
-    $terms = preg_replace("/\"(.*?)\"/e", "search_transform_term('\$1')", $terms);
+    $terms = preg_replace_callback("/\"(.*?)\"/", function($m) {return search_transform_term($m[1]);}, $terms);
     $terms = preg_split("/\s+|,/", $terms);
 
     $out = array();
+
     foreach($terms as $term){
-        $term = preg_replace("/\{WHITESPACE-([0-9]+)\}/e", "chr(\$1)", $term);
+
+        $term = preg_replace_callback("/\{WHITESPACE-([0-9]+)\}/", function($m) {return chr($m[1]);}, $term);
         $term = preg_replace("/\{COMMA\}/", ",", $term);
+
         $out[] = $term;
     }
 
@@ -269,7 +272,7 @@ function search_split_terms($terms){
 }
 
 function search_transform_term($term){
-    $term = preg_replace("/(\s)/e", "'{WHITESPACE-'.ord('\$1').'}'", $term);
+    $term = preg_replace_callback("/(\s)/", function($m) {return '{WHITESPACE-'.ord($m[1]).'}';}, $term);
     $term = preg_replace("/,/", "{COMMA}", $term);
     return $term;
 }
@@ -295,8 +298,8 @@ function search_rx_escape_terms($terms){
 }
 
 function search_sort_results($a, $b){
-    $ax = $a[score];
-    $bx = $b[score];
+    $ax = $a['score'];
+    $bx = $b['score'];
 
     if ($ax == $bx){ return 0; }
     return ($ax > $bx) ? -1 : 1;
