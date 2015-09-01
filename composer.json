@@ -1,6 +1,6 @@
 {
     "name": "phpsimpl/simpl",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "type": "library",
     "description": "PHPSimpl - a collection of useful PHP classes",
     "keywords": ["classes"],
@@ -18,7 +18,7 @@
         "source": "https://github.com/nickdenardis/phpsimpl"
     },
     "require": {
-        "php": ">=5.2",
+        "php": ">=5.3",
         "rdlowrey/auryn": "v0.13.0"
     },
     "autoload": {
