@@ -17,17 +17,18 @@ if (!function_exists('dd')) {
  * @param $type A string with the type of alert, usually ("error","success")
  * @return NULL
  */
-if (!function_exists('Alert')){
-    function Alert($alerts, $type=''){
+if (!function_exists('Alert')) {
+    function Alert($alerts, $type='')
+    {
         // Decide what class to display
         $class = ($type == '')?'Error':$type;
 
         //Display all errors to user
-        if ( is_array($alerts) && count($alerts) > 0){
-            while ( list($key,$data) = each($alerts) ){
+        if (is_array($alerts) && count($alerts) > 0) {
+            while (list($key, $data) = each($alerts)) {
                 echo '<div class="form' . ucfirst($class) . '" id="form' . ucfirst($class) . '"><p>' . $data . '</p></div>'. "\n";
             }
-        }else if ( is_string($alerts) ){
+        } elseif (is_string($alerts)) {
             echo '<div class="form' . ucfirst($class) . '" id="form' . ucfirst($class) . '"><p>' . $alerts . '</p></div>'. "\n";
         }
     }
@@ -40,14 +41,17 @@ if (!function_exists('Alert')){
  * @param $type A string with the type of alert, usually ("error","success")
  * @return bool
  */
-if (!function_exists('SetAlert')){
-    function SetAlert($alert,$type='error'){
+if (!function_exists('SetAlert')) {
+    function SetAlert($alert, $type='error')
+    {
         // Set the Alert into the correct session type
-        if (is_array($alert))
-            foreach($alert as $value)
+        if (is_array($alert)) {
+            foreach ($alert as $value) {
                 $_SESSION[$type][] = $value;
-        else
+            }
+        } else {
             $_SESSION[$type][] = $alert;
+        }
 
         return true;
     }
@@ -59,8 +63,9 @@ if (!function_exists('SetAlert')){
  * @param $type A string containing the type of alert to return
  * @return array
  */
-if (!function_exists('IsAlert')){
-    function IsAlert($type){
+if (!function_exists('IsAlert')) {
+    function IsAlert($type)
+    {
         // Return if there are strings waiting the the session type array
         return (array_key_exists($type, $_SESSION) && is_array($_SESSION[$type]) && count($_SESSION[$type]) > 0);
     }
@@ -73,8 +78,9 @@ if (!function_exists('IsAlert')){
  * @param $type A string containing the type of alert to return
  * @return array
  */
-if (!function_exists('GetAlert')){
-    function GetAlert($type){
+if (!function_exists('GetAlert')) {
+    function GetAlert($type)
+    {
         // Get the array
         $return = $_SESSION[$type];
         // Reset the array
@@ -90,16 +96,18 @@ if (!function_exists('GetAlert')){
  * @param $text A mixed set, anything with a predefined format
  * @return null
  */
-if (!function_exists('Pre')){
-    function Pre($text, $ip=''){
+if (!function_exists('Pre')) {
+    function Pre($text, $ip='')
+    {
         $ready = true;
 
-        if (is_string($ip) && $ip != '' && $_SERVER['REMOTE_ADDR'] != $ip)
+        if (is_string($ip) && $ip != '' && $_SERVER['REMOTE_ADDR'] != $ip) {
             $ready = false;
-        else if (is_array($ip) && !in_array($_SERVER['REMOTE_ADDR'], $ip))
+        } elseif (is_array($ip) && !in_array($_SERVER['REMOTE_ADDR'], $ip)) {
             $ready = false;
+        }
 
-        if ($ready == true){
+        if ($ready == true) {
             echo '<pre>';
             print_r($text);
             echo '</pre>';
@@ -113,23 +121,25 @@ if (!function_exists('Pre')){
  * @param $text String
  * @return string
  */
-if (!function_exists('h')){
-    function h($text){
+if (!function_exists('h')) {
+    function h($text)
+    {
         return htmlspecialchars(stripslashes($text));
     }
 }
 
 // Backfilled from Illuminate/Support/Helpers
-if ( ! function_exists('e')){
-	/**
-	 * Escape HTML entities in a string.
-	 *
-	 * @param  string  $value
-	 * @return string
-	 */
-	function e($value){
-		return htmlentities($value, ENT_QUOTES, 'UTF-8', false);
-	}
+if (! function_exists('e')) {
+    /**
+     * Escape HTML entities in a string.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    function e($value)
+    {
+        return htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+    }
 }
 
 /**
@@ -139,13 +149,15 @@ if ( ! function_exists('e')){
  * @param $index String
  * @return string
  */
-if ( ! function_exists('a') ) {
-  function a(&$array, $index){
-      if (is_array($array) && isset($index[$array]))
-          return $array[$index];
+if (! function_exists('a')) {
+    function a(&$array, $index)
+    {
+        if (is_array($array) && isset($index[$array])) {
+            return $array[$index];
+        }
 
-      return false;
-  }
+        return false;
+    }
 }
 
 /**
@@ -156,10 +168,10 @@ if ( ! function_exists('a') ) {
  * @return bool
  */
 // Create a safe define function to avoid notices
-if ( ! function_exists('safeDefine') ) {
+if (! function_exists('safeDefine')) {
     function safeDefine($key, $value)
     {
-        if ( ! defined(strtoupper($key)) ){
+        if (! defined(strtoupper($key))) {
             define(strtoupper($key), $value);
             return true;
         }
@@ -174,15 +186,17 @@ if ( ! function_exists('safeDefine') ) {
  * @param $output A mixed variable that needs to be outputted with predefined formatting
  * @return NULL
  */
-if (!function_exists('Debug')){
-    function Debug($output, $class=''){
-        if (DEBUG === true){
+if (!function_exists('Debug')) {
+    function Debug($output, $class='')
+    {
+        if (DEBUG === true) {
             $backtrace = debug_backtrace();
             $debug = array();
             $stack = (isset($backtrace[1]['class']) ? "{$backtrace[1]['class']}::" : '') . (isset($backtrace[1]['function']) ? "{$backtrace[1]['function']}" : '');
 
-            if ($stack)
+            if ($stack) {
                 $debug[] = $stack;
+            }
 
             $debug[] = "Line {$backtrace[0]['line']} of {$backtrace[0]['file']}";
 
@@ -199,15 +213,17 @@ if (!function_exists('Debug')){
         }
         */
 
-        if (DEBUG_LOG === true){
-            if (!$fp = fopen(FS_CACHE . 'debug.log', "a"))
+        if (DEBUG_LOG === true) {
+            if (!$fp = fopen(FS_CACHE . 'debug.log', "a")) {
                 return;
+            }
 
-            if (fwrite($fp, date("Y-m-d H:i:s") . ' ' . $_SERVER['REMOTE_ADDR'] . ' ' . print_r($output, true) . "\n") === FALSE)
+            if (fwrite($fp, date("Y-m-d H:i:s") . ' ' . $_SERVER['REMOTE_ADDR'] . ' ' . print_r($output, true) . "\n") === false) {
                 return;
+            }
 
             fclose($fp);
-            chmod (FS_CACHE . 'debug.log', 0777);
+            chmod(FS_CACHE . 'debug.log', 0777);
         }
     }
 }
@@ -218,8 +234,9 @@ if (!function_exists('Debug')){
  * @param $data_ref date to compare against in 0000:00:00 00:00:00 format
  * @return string
  */
-if (!function_exists('DateTimeDiff')){
-    function DateTimeDiff($time, $opt = array('parts' => 3)) {
+if (!function_exists('DateTimeDiff')) {
+    function DateTimeDiff($time, $opt = array('parts' => 3))
+    {
         $time = strtotime($time);
 
         // The default values
@@ -227,7 +244,7 @@ if (!function_exists('DateTimeDiff')){
             'to' => 0,
             'parts' => 1,
             'precision' => 'second',
-            'distance' => TRUE,
+            'distance' => true,
             'separator' => ', '
         );
         $opt = array_merge($defOptions, $opt);
@@ -249,8 +266,9 @@ if (!function_exists('DateTimeDiff')){
             'second' => 1
         );
         // Round to precision
-        if ($opt['precision'] != 'second')
+        if ($opt['precision'] != 'second') {
             $diff = round(($diff/$periods[$opt['precision']])) * $periods[$opt['precision']];
+        }
         // Report the value is 'less than 1 ' precision period away
         (0 == $diff) && ($str = 'less than 1 '.$opt['precision']);
         // Loop over each period
@@ -258,7 +276,9 @@ if (!function_exists('DateTimeDiff')){
             // Stitch together the time difference string
             (($x=floor($diff/$value))&&$opt['parts']--) && $str.=($str?$opt['separator']:'').($x.' '.$label.($x>1?'s':''));
             // Stop processing if no more parts are going to be reported.
-            if ($opt['parts'] == 0 || $label == $opt['precision']) break;
+            if ($opt['parts'] == 0 || $label == $opt['precision']) {
+                break;
+            }
             // Get ready for the next pass
             $diff -= $x*$value;
         }
@@ -267,15 +287,19 @@ if (!function_exists('DateTimeDiff')){
     }
 }
 
-function search_split_terms($terms){
-    $terms = preg_replace_callback("/\"(.*?)\"/", function($m) {return search_transform_term($m[1]);}, $terms);
+function search_split_terms($terms)
+{
+    $terms = preg_replace_callback("/\"(.*?)\"/", function ($m) {
+        return search_transform_term($m[1]);
+    }, $terms);
     $terms = preg_split("/\s+|,/", $terms);
 
     $out = array();
 
-    foreach($terms as $term){
-
-        $term = preg_replace_callback("/\{WHITESPACE-([0-9]+)\}/", function($m) {return chr($m[1]);}, $term);
+    foreach ($terms as $term) {
+        $term = preg_replace_callback("/\{WHITESPACE-([0-9]+)\}/", function ($m) {
+            return chr($m[1]);
+        }, $term);
         $term = preg_replace("/\{COMMA\}/", ",", $term);
 
         $out[] = $term;
@@ -284,47 +308,57 @@ function search_split_terms($terms){
     return $out;
 }
 
-function search_transform_term($term){
-    $term = preg_replace_callback("/(\s)/", function($m) {return '{WHITESPACE-'.ord($m[1]).'}';}, $term);
+function search_transform_term($term)
+{
+    $term = preg_replace_callback("/(\s)/", function ($m) {
+        return '{WHITESPACE-'.ord($m[1]).'}';
+    }, $term);
     $term = preg_replace("/,/", "{COMMA}", $term);
     return $term;
 }
 
-function search_escape_rlike($string){
+function search_escape_rlike($string)
+{
     return preg_replace("/([.\[\]*^\$])/", '\\\$1', $string);
 }
 
-function search_db_escape_terms($terms){
+function search_db_escape_terms($terms)
+{
     $out = array();
-    foreach($terms as $term){
+    foreach ($terms as $term) {
         $out[] = '[[:<:]]'.AddSlashes(search_escape_rlike($term)).'[[:>:]]';
     }
     return $out;
 }
 
-function search_rx_escape_terms($terms){
+function search_rx_escape_terms($terms)
+{
     $out = array();
-    foreach($terms as $term){
+    foreach ($terms as $term) {
         $out[] = '\b'.preg_quote($term, '/').'\b';
     }
     return $out;
 }
 
-function search_sort_results($a, $b){
+function search_sort_results($a, $b)
+{
     $ax = $a['score'];
     $bx = $b['score'];
 
-    if ($ax == $bx){ return 0; }
+    if ($ax == $bx) {
+        return 0;
+    }
     return ($ax > $bx) ? -1 : 1;
 }
 
-function search_html_escape_terms($terms){
+function search_html_escape_terms($terms)
+{
     $out = array();
 
-    foreach($terms as $term){
-        if (preg_match("/\s|,/", $term)){
+    foreach ($terms as $term) {
+        if (preg_match("/\s|,/", $term)) {
             $out[] = '"'.HtmlSpecialChars($term).'"';
-        }else{
+        } else {
             $out[] = HtmlSpecialChars($term);
         }
     }
@@ -332,8 +366,9 @@ function search_html_escape_terms($terms){
     return $out;
 }
 
-function search_pretty_terms($terms_html){
-    if (count($terms_html) == 1){
+function search_pretty_terms($terms_html)
+{
+    if (count($terms_html) == 1) {
         return array_pop($terms_html);
     }
 

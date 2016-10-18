@@ -16,14 +16,13 @@ $app->share($mySimpl);
 $app->share($db);
 $app->share($validator);
 
-
 // If using DB Sessions
-if ( DB_SESSIONS == true ){
+if (DB_SESSIONS == true) {
     /** @var Simpl\Session $session */
     $session = $app->make('Simpl\Session');
 
     //Change the save_handler to use the class functions
-    session_set_save_handler (
+    session_set_save_handler(
         array(&$session, 'open'),
         array(&$session, 'close'),
         array(&$session, 'read'),
@@ -34,5 +33,6 @@ if ( DB_SESSIONS == true ){
 }
 
 // Start a session if not already started
-if (session_id() == '')
+if (session_id() == '') {
     @session_start();
+}

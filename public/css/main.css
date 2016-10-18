@@ -1,0 +1,253 @@
+/* General */
+body {
+	font: 100% Arial, Helvetica, sans-serif;
+	color: #333333;
+	background: #FFFFFF;
+	margin: 0px;
+	padding: 0px;
+}
+h1, h2, h3, h4, h5, img {
+	margin: 0px;
+	padding: 0px;
+	border: 0px;
+}
+a {
+	color: #4d76e0;
+	text-decoration: none;
+}
+a:visited {
+	color: #4d7bf1;
+}
+a:hover {
+	color: #FFF;
+	background-color: #839de0;
+}
+
+/* Global */
+#container {
+	background-color: #dce0eb;
+}
+.clearboth { clear: both; }
+
+/* Header */
+#header {
+	margin-bottom: 1.0em;
+	background-color: #222222;
+	border-bottom: 4px solid #273f85;
+}
+#header h1 {
+	padding: 0.3em 1.4em;
+	font-size: 1.4em;
+	color: #FFF;
+}
+
+/* Main Menu */
+#main-menu {
+	clear: both;
+	float: right;
+	width: 200px;
+	font-size: 0.8em;
+	margin-right: 10px;
+}
+#main-menu ul {
+	margin: 0px;
+	padding: 5px 0px;
+	list-style: none;
+	background-color: #CCCCCC;
+}
+#main-menu li {
+	display: inline;
+}
+#main-menu li a {
+	display: block;
+	padding: 4px 10px;
+	margin: 1px;
+	background-color: #CCCCCC;
+	border-bottom: 1px solid #EEE;
+	text-decoration: none;
+	color: #1d2f64;
+}
+#main-menu li a.last {
+	border-bottom: 0px;
+}
+#main-menu li a:hover {
+	background-color: #999999;
+}
+
+/* Content */
+#content {
+	margin: 0px 220px 10px 15px;
+	font-size: 0.9em;
+	position: relative;
+	background-color: #FFF;
+}
+#content #main-info {
+	padding: 5px;
+	position: relative;
+	color: #8d1e02;
+}
+#content #main-info h1 {
+	border: 0px;
+	padding: 6px;
+	margin: 0px;
+	font-size: 1.6em;
+}
+#content #data {
+	padding: 5px;
+}
+#content h1 {
+	font-size: 1.3em;
+	border-bottom: 1px solid #333333;
+	margin-bottom: 10px;
+}
+#content form {
+	margin: 0px 0px 10px 0px;
+}
+
+/* Post List */
+dl#posts {
+	margin: 0px 0px 0px 5px;
+	padding: 0px;
+}
+dl#posts dt, #view-post h1 {
+	font-family: Georgia;
+	font-size: 1.3em;
+	margin-bottom: 7px;
+}
+dl#posts dt a {
+	color: #000;
+	text-decoration: none;
+}
+dl#posts dt a:hover {
+	background-color: #4d76e0;
+	color: #FFF;
+}
+dl#posts dd {
+	padding: 0px;
+	margin: 0px;
+	color: #333;
+	font-size: 0.95em;
+}
+dl#posts dd .details, #view-post .details {
+	margin: 3px 0px 15px;
+	font-size: 0.85em;
+	color: #666;
+}
+
+/* Viewing Post */
+#view-post {
+	padding: 5px 10px 10px;
+}
+
+/* Item Lists */
+table.small {
+	clear: left;
+	font-size: 0.9em;
+	margin-top: 3px;
+}
+table.small th {
+	padding: 3px;
+	text-align: left;
+	font-weight: bold;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	color: #1d2f64;
+	font-size: 1.2em;
+	border-bottom: 1px solid #CCC;
+}
+table.small th a, table.small th a:visited  {
+	color: #1d2f64;
+}
+table.small td {
+	border-bottom: 1px solid #DDD;
+	border-right: 1px solid #EEE;
+	padding: 4px 0px 4px 5px;
+}
+table.small td.last, table.small th.last {
+	border-right: 0px;
+}
+
+/* Search */
+#search {
+	position: absolute;
+	top: 10px;
+	right: 6px;
+}
+#search fieldset {
+	border: 0px;
+	display: inline;
+	margin: 0px;
+	padding: 0px;
+}
+#search legend {
+	display: none;
+}
+#search label {
+	display: none;
+	float: left;
+	text-align: right;
+	margin: 4px 4px 0px 0px;
+	font-weight: bold;
+}
+#search input.submit {
+	display: none;
+	border: 1px solid #999999;
+	background-color: #FFF;
+}
+#search input.search {
+	background: #FFF url(../images/magnifier.png) no-repeat 2px center;
+	padding-left: 20px;
+}
+
+/* Options */
+ul#options {
+	margin: 0px;
+	padding: 7px 0px;
+	list-style: none;
+}
+li.back {
+	background: url(../images/back.gif) no-repeat left center;
+	padding: 0px 0px 0px 20px;	
+}
+
+/* Alerts */
+.formError, .formSuccess {
+	margin: 3px 10%;
+}
+.formError p{
+	font-style: italic;
+	font-weight: bold;
+	background-color: #8B2145;
+	color: #FFCC33;
+	text-align: center;
+	margin: 0px;
+	padding: 3px;
+}
+.formSuccess p{
+	font-style: italic;
+	font-weight: bold;
+	background-color: #D1E1E3;
+	color: #0C5449;
+	margin: 0px;
+	padding: 3px;
+	text-align: center;
+}
+pre.debug {
+	font-size: 0.8em;
+	margin: 5px 0px 5px 15px;
+	border-left: 5px solid #cc5533;
+	padding: 5px 10px;
+}
+
+/* Footer */
+#footer {
+	clear: both;
+	margin-top: 15px;
+	background-color: #222222;
+	border-top: 1px solid #273f85;
+}
+#footer p {
+	padding: 0.3em 1.8em;
+	font-size: 0.8em;
+	margin: 0px;
+	color: #FFF;
+}
