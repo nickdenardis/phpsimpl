@@ -81,7 +81,7 @@ class DB extends Simpl {
             $this->database = $this->config[3];
 
             // Connect to MySQL
-            $this->db_link = @mysql_connect($this->config[0], $this->config[1], $this->config[2]);
+            $this->db_link = @mysql_connect($this->config[0], $this->config[1], $this->config[2], true);
 
             if ($this->db_link){
                 // Update the state
