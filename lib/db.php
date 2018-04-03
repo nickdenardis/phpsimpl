@@ -261,7 +261,7 @@ class DB extends Simpl {
             $query = substr($query, 0, -2) . ' WHERE ' . $parameters;
         }
 
-        return $this->Query($query, $this->db_link);
+        return $this->Query($query, $this->database);
     }
 
     /**
