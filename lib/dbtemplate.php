@@ -381,10 +381,10 @@ class DbTemplate extends Form {
             $result = $this->db_link->Query($query, $this->database);
 
             // Clear the cache
-            $this->ClearCache('clear_query');
+            $this->db_link->ClearCache('clear_query');
 
             // If it did something the return that everything is gone
-            if ($this->RowsAffected() == 1){
+            if ($this->db_link->RowsAffected() == 1){
                 Debug('Delete(), Success Deleted Item: ' . get_class($this) . ', On: ' . $extra);
                 return true;
             }
