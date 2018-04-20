@@ -254,9 +254,10 @@ class DbTemplate extends Form {
             // Do the Operation
             $this->db_link->Perform($this->table, $info, $type, $extra, $this->database);
 
-            // Grab the ID if inserting
-            if ($type == 'insert' && $this->primary != '')
+            // Grab the ID if inserting and it isn't already set
+            if ($type == 'insert' && $this->primary != '' && $this->GetPrimary() == '') {
                 $this->SetPrimary($this->db_link->InsertID());
+            }
 
             Debug('Save(), Success Saving Item: ' . get_class($this) . ', Primary Key: ' . $this->GetPrimary());
             return true;
