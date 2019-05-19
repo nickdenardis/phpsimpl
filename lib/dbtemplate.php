@@ -741,7 +741,7 @@ class DbTemplate extends Form {
                         $this->db_link->Perform($this->table, $newArray, 'update', '`' . $this->primary . '`=\'' . $this->GetPrimary() . '\'');
 
                         // Set the value to this class
-                        $this->db_link->SetValue($field,$new_order[$field]);
+                        $this->SetValue($field,$new_order[$field]);
 
                         return true;
                     }
