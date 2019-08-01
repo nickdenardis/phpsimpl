@@ -713,8 +713,9 @@ class DbTemplate extends Form {
 
                 // Create the filter query
                 foreach($filters as $filter=>$value){
-                    if ($value != '')
+                    if (isset($value)) {
                         $q_filter .= '`' . $filter . '` = \'' . $value . '\' AND ';
+                    }
                 }
 
                 // Add the move type
