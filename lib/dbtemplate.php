@@ -438,10 +438,10 @@ class DbTemplate extends Form {
         		$search .= ($class->search != '')?'`' . $class->database . '`.`' . $class->table . '`.' . $name . ' ' . (($class->Get('type',$name) == 'string' || $class->Get('type',$name) == 'blob')?'LIKE \'%' . $this->db_link->Prepare($class->search) . '%\'':' = \'' . $this->db_link->Prepare($class->search) . '\'') . ' OR ':'';
         	}
 
-                // If there are conditions on the joined class tack them on to the current class conditions
-                if ($class->conditions != ''){
-                    $this->conditions .= (($this->conditions != '')?' AND ':'') . $class->conditions;
-                }
+            // If there are conditions on the joined class tack them on to the current class conditions
+            if ($class->conditions != '' && $class->conditions != $this->conditions) {
+                $this->conditions .= (($this->conditions != '')?' AND ':'') . $class->conditions;
+            }
 
         	// Create the return fields
         	if (isset($returns[$key]) && is_array($returns[$key]) && count($returns[$key]) > 0){
