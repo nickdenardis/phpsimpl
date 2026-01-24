@@ -15,7 +15,14 @@ class File extends Folder {
     public $filename;
 
     /**
-     * File Constructor
+     * File Constructor (PHP 5+)
+     */
+    public function __construct($filename, $directory='') {
+        $this->File($filename, $directory);
+    }
+
+    /**
+     * File Constructor (Legacy PHP 4)
      *
      * @param $filename    String containing the filename that is in question
      * @param string $directory
@@ -180,7 +187,7 @@ class File extends Folder {
      * @param NULL
      * @result bool
      */
-    public function Delete() {
+    public function Delete($force=false) {
         if(is_file($this->directory . $this->filename)) {
             //delete the file
             Debug('Delete(), Deleting file ' . $this->directory . $this->filename);

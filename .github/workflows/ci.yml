@@ -1,0 +1,54 @@
+name: PHP Modernization CI
+
+on:
+  push:
+    branches: [ "master", "test-expansion" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test-php82:
+    name: Test on PHP 8.2
+    runs-on: ubuntu-latest
+    
+    services:
+      mariadb:
+        image: mariadb:10.5
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: phpsimpl_test
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_pass
+        ports:
+          - 3307:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mysqli, pdo_mysql
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Prepare testing environment
+      run: |
+        cp .env.testing .env
+        # CI environment often needs host override or 127.0.0.1
+        # PEST uses .env.testing directly via loadEnv()
+
+    - name: Run Smoke Test Application (Sanity Check)
+      run: |
+        # Start built-in server in background
+        php -S 127.0.0.1:8080 -t test-app &
+        sleep 5
+        curl -I http://127.0.0.1:8080/index.php
+
+    - name: Run Test Suite
+      run: ./vendor/bin/pest
+      env:
+        DB_PORT: 3307

@@ -23,6 +23,14 @@
         "php": ">=5.3",
         "rdlowrey/auryn": "v0.13.0"
     },
+    "require-dev": {
+        "pestphp/pest": "^2.0",
+        "mockery/mockery": "^1.6"
+    },
+    "scripts": {
+        "test": "pest",
+        "test:coverage": "pest --coverage"
+    },
     "autoload": {
         "classmap": [
             "lib/"
@@ -32,6 +40,11 @@
         ],
         "psr-0": {
             "Simpl": "lib"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }

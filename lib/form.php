@@ -40,12 +40,12 @@ class Form {
         // Loop through all the data
         foreach ($data as $key=>$data){
             // Set all the field info
-            $tmpField = new Field;
+            $tmpField = new Field(new Validate);
             $tmpField->Set('name', $key);
             $tmpField->Set('value', $data);
-            $tmpField->Set('required', $required[$key]);
-            $tmpField->Set('label', $labels[$key]);
-            $tmpField->Set('example', $examples[$key]);
+            $tmpField->Set('required', (isset($required[$key]) ? $required[$key] : false));
+            $tmpField->Set('label', (isset($labels[$key]) ? $labels[$key] : ''));
+            $tmpField->Set('example', (isset($examples[$key]) ? $examples[$key] : ''));
             $tmpField->Set('display', (count($this->fields)+1));
 
             // Add the field to the list
