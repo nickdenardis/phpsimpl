@@ -125,6 +125,9 @@ class DB extends Simpl {
      * @return Mixed
      */
     public function Query($query, $db='', $cache=true, $log=true) {
+        // Make sure we are connected
+        $this->DbConnect();
+        
         // Track the start time of the query
         if (DB_LOG && $log){
             $start = explode(' ',microtime());
@@ -150,9 +153,6 @@ class DB extends Simpl {
             }
         }
 
-        // Make sure we are connected
-        $this->DbConnect();
-
         // Change the DB if needed
         if ($db != '' && $db != $this->database){
             $old_db = $this->database;
@@ -164,9 +164,6 @@ class DB extends Simpl {
             echo '<pre class="debug">';
             print_r($query);
             echo '</pre>';
-        }
-        if ($this->db_link == NULL) {
-            Pre($this->Nice());
         }
         // Do the Query
         $result = \mysqli_query($this->db_link, $query) or $this->Error($query, \mysqli_errno($this->db_link), \mysqli_error($this->db_link));
@@ -262,7 +259,7 @@ class DB extends Simpl {
                         $query .= '`' . $column . '` = now(), ';
                         break;
                     case 'null':
-                        $query .= '`' . $column .= '` = null, ';
+                        $query .= '`' . $column . '` = null, ';
                         break;
                     default:
                         $query .= '`' . $column . '` = \'' . $this->Prepare($value) . '\', ';
@@ -284,7 +281,11 @@ class DB extends Simpl {
     public function Close(){
         // If Connected
         if ($this->connected){
-            return @\mysqli_close($this->db_link);
+            $result = @\mysqli_close($this->db_link);
+            // Reset connection state to allow reconnection
+            $this->connected = false;
+            $this->db_link = null;
+            return $result;
         }
 
         return true;
@@ -304,6 +305,9 @@ class DB extends Simpl {
         if ($this->db_link && @\mysqli_select_db($this->db_link, $database)){
             // Increment the query counter
             $this->query_count++;
+            
+            // Update the database property to reflect the change
+            $this->database = $database;
 
             Debug('DbChange(), Changed database to: ' . $database);
 
@@ -443,6 +447,10 @@ class DB extends Simpl {
         $this->DbConnect();
 
         // Escape the values from SQL injection
+        // Guard against null db_link if connection failed
+        if ($this->db_link === null) {
+            return addslashes($string);
+        }
         return (is_numeric($string))?addslashes($string):\mysqli_real_escape_string($this->db_link, $string);
     }
 
