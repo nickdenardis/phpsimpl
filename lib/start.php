@@ -34,5 +34,9 @@ if ( DB_SESSIONS == true ){
 }
 
 // Start a session if not already started
-if (session_id() == '')
-    @session_start();
+if(
+    (!defined('SESSION_ENABLE') || SESSION_ENABLE == true)
+    && session_id() == ''
+ ) {
+	@session_start();
+}
