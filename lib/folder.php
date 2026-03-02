@@ -19,7 +19,14 @@ class Folder {
     protected $folder_name;
 
     /**
-     * Folder Constructor
+     * Folder Constructor (PHP 5+)
+     */
+    public function __construct($folder_name, $directory='') {
+        $this->Folder($folder_name, $directory);
+    }
+
+    /**
+     * Folder Constructor (Legacy PHP 4)
      *
      * @param $folder_name String containing the folder name that is in question
      * @param \Simpl\The|string $directory The directory where the file is sitting

@@ -1,3 +1,10 @@
 .idea
 vendor
 composer.lock
+.env
+
+.phpunit.result.cache
+.pest/
+cache/
+*.cache.php
+debug.log

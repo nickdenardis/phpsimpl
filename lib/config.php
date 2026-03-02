@@ -23,6 +23,8 @@ if (!defined('DB_SESSIONS_GC')) define('DB_SESSIONS_GC', true);
 if (!defined('DB_LOG')) define('DB_LOG', false);
 // For clearing the cache
 if (!defined('CLEAR_CACHE')) define('CLEAR_CACHE', false);
+// To enable or disable sessions
+if (!defined('SESSION_ENABLE')) define('SESSION_ENABLE', true);
 
 // Table Stripes
 if (!defined('SIMPL_TABLE_STRIPES')) define('SIMPL_TABLE_STRIPES', true);

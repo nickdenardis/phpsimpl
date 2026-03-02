@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # MariaDB 10.11 - Compatible with mysql_* extension
+  mariadb:
+    image: mariadb:10.11
+    container_name: phpsimpl_mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: phpsimpl_test
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./test-app/database.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - phpsimpl-network
+
+  # PHP 5.5 Environment (Current Production - with mysql_* extension)
+  php55:
+    build:
+      context: .
+      dockerfile: docker/php55/Dockerfile
+    container_name: phpsimpl_php55
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/vendor
+    depends_on:
+      - mariadb
+    environment:
+      DBHOST: mariadb
+      DBUSER: test_user
+      DBPASS: test_pass
+      DB_DEFAULT: phpsimpl_test
+    ports:
+      - "8055:8000"
+    networks:
+      - phpsimpl-network
+    profiles:
+      - php55
+      - all
+    command: [ "sh", "-c", "sleep infinity" ]
+
+  # PHP 8.2 Environment (Target - with mysqli extension)
+  php82:
+    build:
+      context: ./docker/php82
+      dockerfile: Dockerfile
+    container_name: phpsimpl_php82
+    working_dir: /app
+    volumes:
+      - .:/app
+    depends_on:
+      - mariadb
+    environment:
+      DBHOST: mariadb
+      DBUSER: test_user
+      DBPASS: test_pass
+      DB_DEFAULT: phpsimpl_test
+    ports:
+      - "8082:8000"
+    networks:
+      - phpsimpl-network
+    profiles:
+      - php82
+      - all
+    command: [ "sh", "-c", "sleep infinity" ]
+
+networks:
+  phpsimpl-network:
+    driver: bridge
+
+volumes:
+  mariadb_data:

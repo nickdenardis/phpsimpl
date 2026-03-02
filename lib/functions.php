@@ -141,7 +141,7 @@ if ( ! function_exists('e')){
  */
 if ( ! function_exists('a') ) {
   function a(&$array, $index){
-      if (is_array($array) && isset($index[$array]))
+      if (is_array($array) && isset($array[$index]))
           return $array[$index];
 
       return false;
