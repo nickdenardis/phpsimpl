@@ -1178,11 +1178,11 @@ class DbTemplate extends Form {
             $tmpField->Set('type', $field->type);
             $tmpField->Set('length', $this->db_link->FieldLength($result,$field_count));
             $tmpField->Set('validate', $this->ValidType($field));
-            $tmpField->Set('primary', $field->primary_key);
+            $tmpField->Set('primary', $field->flags);
             $tmpField->Set('display', ($field_count+1));
 
             // Set the primary if it is
-            if ($field->primary_key == 1)
+            if ($field->flags & MYSQLI_PRI_KEY_FLAG)
                 $this->primary = $field->name;
 
             // Add the field to the list
