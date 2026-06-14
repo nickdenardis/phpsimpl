@@ -106,11 +106,6 @@ class DbTemplate extends Form {
         return true;
     }
 
-    public function __destruct() {
-        // Get a list of all the class variables
-        unset($this);
-    }
-
     /**
      * Get the Item Information
      *
