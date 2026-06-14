@@ -61,16 +61,21 @@ class DbTemplate extends Form {
      * DbTemplate Constructor
      *
      * @param string $table Table name
-     * @param DB $db_link
+     * @param DB|string $db_link
      * @internal param string $database Database name
      * @return \Simpl\DbTemplate
      */
-    public function __construct($table, \Simpl\DB $db_link){
+    public function __construct($table, $db_link){
         $this->table = $table;
 
-        $this->db_link = $db_link;
-        
-        $this->database = $this->db_link->getDatabase();
+        if (is_string($db_link)) {
+            global $db;
+            $this->db_link = $db;
+            $this->database = $db_link;
+        } else {
+            $this->db_link = $db_link;
+            $this->database = $this->db_link->getDatabase();
+        }
 
         // Pull the cache if available
         $cache = $this->Cache('get', 'table_' . $this->table . '.cache.php', '', '1 day');
