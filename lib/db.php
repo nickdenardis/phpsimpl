@@ -401,7 +401,18 @@ class DB extends Simpl {
      * @return object
      */
     public function FetchField($result) {
-        return \mysqli_fetch_field($result);
+        $field = \mysqli_fetch_field($result);
+        if ($field) {
+            $field->unsigned    = ($field->flags & MYSQLI_UNSIGNED_FLAG) ? 1 : 0;
+            $field->numeric     = ($field->flags & MYSQLI_NUM_FLAG) ? 1 : 0;
+            $field->zerofill    = ($field->flags & MYSQLI_ZEROFILL_FLAG) ? 1 : 0;
+            $field->primary_key = ($field->flags & MYSQLI_PRI_KEY_FLAG) ? 1 : 0;
+            $field->unique_key  = ($field->flags & MYSQLI_UNIQUE_KEY_FLAG) ? 1 : 0;
+            $field->multiple_key= ($field->flags & MYSQLI_MULTIPLE_KEY_FLAG) ? 1 : 0;
+            $field->blob        = ($field->flags & MYSQLI_BLOB_FLAG) ? 1 : 0;
+            $field->not_null    = ($field->flags & MYSQLI_NOT_NULL_FLAG) ? 1 : 0;
+        }
+        return $field;
     }
 
     /**

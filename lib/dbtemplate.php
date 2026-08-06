@@ -1145,16 +1145,16 @@ class DbTemplate extends Form {
         if (!is_object($field))
             return NULL;
 
-        if ($field->unsigned == 1)
+        if ((isset($field->unsigned) && $field->unsigned == 1) || (isset($field->flags) && ($field->flags & MYSQLI_UNSIGNED_FLAG)))
             return 'unsigned';
 
-        if ($field->type == 'real')
+        if ($field->type === 'real' || (isset($field->type) && in_array($field->type, [MYSQLI_TYPE_FLOAT, MYSQLI_TYPE_DOUBLE, MYSQLI_TYPE_DECIMAL, MYSQLI_TYPE_NEWDECIMAL], true)))
             return 'float';
 
-        if ($field->numeric == 1)
+        if ((isset($field->numeric) && $field->numeric == 1) || (isset($field->flags) && ($field->flags & MYSQLI_NUM_FLAG)))
             return 'int';
 
-        if ($field->name == 'email')
+        if (isset($field->name) && $field->name == 'email')
             return 'email';
 
         return NULL;
