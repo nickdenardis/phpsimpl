@@ -1,6 +1,7 @@
 <?php
 
 use Simpl\DB;
+use Simpl\DbTemplate;
 
 beforeEach(function () {
     // Ensure database is connected
@@ -314,3 +315,66 @@ it('handles mixed null and regular values in single UPDATE', function () {
     expect($row['status'])->toBeNull();
     expect($row['email'])->toBe('mixed@test.example.com'); // Unchanged
 });
+
+it('fetches field metadata and populates flag properties with FetchField()', function () {
+    // Create a temporary table with diverse types, flags, and nullability
+    $this->db->Query("CREATE TEMPORARY TABLE IF NOT EXISTS test_field_metadata (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        price DECIMAL(10,2) NOT NULL,
+        bio TEXT,
+        user_email VARCHAR(255) UNIQUE
+    )", '', false, false);
+
+    $result = $this->db->Query("SELECT * FROM test_field_metadata LIMIT 1");
+
+    // Field 1: id (INT UNSIGNED PRIMARY KEY)
+    $field1 = $this->db->FetchField($result);
+    expect($field1->name)->toBe('id');
+    expect($field1->unsigned)->toBe(1);
+    expect($field1->numeric)->toBe(1);
+    expect($field1->primary_key)->toBe(1);
+    expect($field1->not_null)->toBe(1);
+
+    // Field 2: price (DECIMAL NOT NULL)
+    $field2 = $this->db->FetchField($result);
+    expect($field2->name)->toBe('price');
+    expect($field2->not_null)->toBe(1);
+
+    // Field 3: bio (TEXT / BLOB)
+    $field3 = $this->db->FetchField($result);
+    expect($field3->name)->toBe('bio');
+    expect($field3->blob)->toBe(1);
+
+    // Field 4: user_email (UNIQUE)
+    $field4 = $this->db->FetchField($result);
+    expect($field4->name)->toBe('user_email');
+    expect($field4->unique_key)->toBe(1);
+
+    // No more fields left
+    expect($this->db->FetchField($result))->toBeFalse();
+});
+
+it('parses database table schema and assigns validation rules in DbTemplate', function () {
+    // Create a test table for DbTemplate
+    $this->db->Query("CREATE TEMPORARY TABLE IF NOT EXISTS test_dbtemplate_fields (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        age INT NOT NULL,
+        price DECIMAL(10,2),
+        score FLOAT,
+        email VARCHAR(255),
+        description TEXT
+    )", '', false, false);
+
+    $template = new DbTemplate('test_dbtemplate_fields', $this->db);
+
+    expect($template->Get('validate', 'id'))->toBe('unsigned');
+    expect($template->Get('validate', 'age'))->toBe('int');
+    expect($template->Get('validate', 'price'))->toBe('float');
+    expect($template->Get('validate', 'score'))->toBe('float');
+    expect($template->Get('validate', 'email'))->toBe('email');
+    expect($template->Get('validate', 'description'))->toBeNull();
+});
+
+
+
+
