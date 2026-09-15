@@ -286,8 +286,7 @@ class Mail {
             $this->fullBody = $this->body;
         }
 
-        reset($this->xheaders);
-        while(list($hdr,$value) = each($this->xheaders)) {
+        foreach ($this->xheaders as $hdr => $value) {
             if($hdr != 'Subject')
                 $this->headers .= "$hdr: $value\n";
         }
