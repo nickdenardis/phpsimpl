@@ -24,7 +24,7 @@ if (!function_exists('Alert')){
 
         //Display all errors to user
         if ( is_array($alerts) && count($alerts) > 0){
-            while ( list($key,$data) = each($alerts) ){
+            foreach ($alerts as $key => $data) {
                 echo '<div class="form' . ucfirst($class) . '" id="form' . ucfirst($class) . '"><p>' . $data . '</p></div>'. "\n";
             }
         }else if ( is_string($alerts) ){
