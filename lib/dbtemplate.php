@@ -128,10 +128,10 @@ class DbTemplate extends Form {
         if (count($conditions) > 0){
             $extra = '';
             foreach($conditions as $key)
-                $extra .= '`' . $key . '` =\'' . $this->GetValue($key) . '\' AND ';
+                $extra .= '`' . $key . '` =\'' . $this->db_link->Prepare($this->GetValue($key)) . '\' AND ';
             $extra = substr($extra, 0, -4);
         }else{
-            $extra = '`' . $this->primary . '` = '. $this->GetPrimary();
+            $extra = '`' . $this->primary . '` = \'' . $this->db_link->Prepare($this->GetPrimary()) . '\'';
         }
 
         Debug('GetInfo(), On: ' . $extra . ', Value: ' . $this->GetPrimary());
@@ -189,12 +189,12 @@ class DbTemplate extends Form {
         if ($force == 'update' || ($force == '' && $this->GetPrimary() != '')){
             $type = 'update';
 
-            $extra = '`' . $this->primary . '` =' . $this->GetPrimary();
+            $extra = '`' . $this->primary . '` =\'' . $this->db_link->Prepare($this->GetPrimary()) . '\'';
 
             if (is_array($force_on) && count($force_on) > 0){
                 $extra = '';
                 foreach($force_on as $key)
-                    $extra .= '`' . $key . '` =\'' . $this->GetValue($key) . '\' AND ';
+                    $extra .= '`' . $key . '` =\'' . $this->db_link->Prepare($this->GetValue($key)) . '\' AND ';
                 $extra = substr($extra, 0, -4);
             }
 
@@ -330,10 +330,10 @@ class DbTemplate extends Form {
         if (count($conditions) > 0){
             $extra = '';
             foreach($conditions as $key)
-                $extra .= '`' . $key . '` =\'' . $this->GetValue($key) . '\' AND ';
+                $extra .= '`' . $key . '` =\'' . $this->db_link->Prepare($this->GetValue($key)) . '\' AND ';
             $extra = substr($extra, 0, -4);
         }else{
-            $extra = '`' . $this->primary . '` = '. $this->GetPrimary();
+            $extra = '`' . $this->primary . '` = \'' . $this->db_link->Prepare($this->GetPrimary()) . '\'';
         }
 
         Debug('UpdateValue(), Field: ' . $field . ', New Value: ' . $value . ', On: ' . $extra);
@@ -363,10 +363,10 @@ class DbTemplate extends Form {
         if (count($conditions) > 0){
             $extra = '';
             foreach($conditions as $key)
-                $extra .= '`' . $key . '` =\'' . $this->GetValue($key) . '\' AND ';
+                $extra .= '`' . $key . '` =\'' . $this->db_link->Prepare($this->GetValue($key)) . '\' AND ';
             $extra = substr($extra, 0, -4);
         }else{
-            $extra = '`' . $this->primary . '` = '. $this->GetPrimary();
+            $extra = '`' . $this->primary . '` = \'' . $this->db_link->Prepare($this->GetPrimary()) . '\'';
         }
 
         // If we can get the info then we can delete it
@@ -714,12 +714,12 @@ class DbTemplate extends Form {
                 // Create the filter query
                 foreach($filters as $filter=>$value){
                     if (isset($value)) {
-                        $q_filter .= '`' . $filter . '` = \'' . $value . '\' AND ';
+                        $q_filter .= '`' . $filter . '` = \'' . $this->db_link->Prepare($value) . '\' AND ';
                     }
                 }
 
                 // Add the move type
-                $q_filter .= '`' . $field . '`' . (($direction == 'up')?'<':'>') . '\'' . $this->GetValue($field) . '\' AND ';
+                $q_filter .= '`' . $field . '`' . (($direction == 'up')?'<':'>') . '\'' . $this->db_link->Prepare($this->GetValue($field)) . '\' AND ';
 
                 // Make the query
                 $query = 'SELECT `' . $class->primary . '`,`' . $field . '` FROM `' . $this->table . '` WHERE ' . substr($q_filter,0,-4) . ' ORDER BY `' . $field . '` ' . (($direction == 'up')?'DESC ':'ASC ') . 'LIMIT 1';
@@ -735,11 +735,11 @@ class DbTemplate extends Form {
                     if ($new_order[$field] != $this->GetValue($field)){
                         // Update the old one
                         $oldArray = array($field => $this->GetValue($field));
-                        $this->db_link->Perform($class->table, $oldArray, 'update', '`' . $class->primary . '`=\'' . $new_order[$class->primary] . '\'');
+                        $this->db_link->Perform($class->table, $oldArray, 'update', '`' . $class->primary . '`=\'' . $this->db_link->Prepare($new_order[$class->primary]) . '\'');
 
                         // Update the New one
                         $newArray = array($field => $new_order[$field]);
-                        $this->db_link->Perform($this->table, $newArray, 'update', '`' . $this->primary . '`=\'' . $this->GetPrimary() . '\'');
+                        $this->db_link->Perform($this->table, $newArray, 'update', '`' . $this->primary . '`=\'' . $this->db_link->Prepare($this->GetPrimary()) . '\'');
 
                         // Set the value to this class
                         $this->SetValue($field,$new_order[$field]);
