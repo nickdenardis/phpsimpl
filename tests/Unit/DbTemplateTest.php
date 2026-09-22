@@ -112,6 +112,27 @@ it('prioritizes unsigned over int validation rule', function () {
     expect($result)->toBe('unsigned');
 });
 
+it('exports a row with a null column value without a deprecation notice', function () {
+    $resultsProperty = $this->reflection->getProperty('results');
+    $resultsProperty->setAccessible(true);
+    $resultsProperty->setValue($this->template, [
+        ['username' => 'jdoe', 'bio' => null],
+    ]);
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    $xml = $this->template->Export('xml', ['username', 'bio']);
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($xml)->toContain('<username>jdoe</username>');
+});
+
 it('handles non-object inputs gracefully in ValidType()', function ($input) {
     $result = $this->validTypeMethod->invokeArgs($this->template, [&$input]);
     expect($result)->toBeNull();

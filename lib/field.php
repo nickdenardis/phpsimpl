@@ -347,6 +347,6 @@ class Field {
      * @return string
      */
     private function Output($string){
-        return stripslashes($string);
+        return stripslashes((string) $string);
     }
 }

@@ -8,6 +8,21 @@ it('escapes HTML entities with h()', function () {
     expect($output)->toContain('&lt;script&gt;');
 });
 
+it('handles a null value in h() without a deprecation notice', function () {
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    $output = h(null);
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($output)->toBe('');
+});
+
 it('escapes entities with e()', function () {
     $input = '<div class="test">Hello & goodbye</div>';
     $output = e($input);

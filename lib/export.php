@@ -218,7 +218,7 @@ class Export {
             if (is_array($set)){
                 // Loop through each column
                 foreach($set as $data)
-                    $this->output['csv'] .= '"' . str_replace($bad_output, $good_output, stripslashes($data)) . '",';
+                    $this->output['csv'] .= '"' . str_replace($bad_output, $good_output, stripslashes((string) $data)) . '",';
 
                 // End the line
                 $this->output['csv'] = substr($this->output['csv'], 0, -1) . $end;
@@ -252,7 +252,7 @@ class Export {
 
                 // Loop through each column
                 foreach($set as $name=>$data)
-                    $this->output['xml'] .= "\t\t" . '<' . $name . '>' . str_replace($bad_output, $good_output, stripslashes($data)) . '</' . $name . '>' . "\n";
+                    $this->output['xml'] .= "\t\t" . '<' . $name . '>' . str_replace($bad_output, $good_output, stripslashes((string) $data)) . '</' . $name . '>' . "\n";
 
                 if (!$raw)
                     $this->output['xml'] .= "\t" . '</item>' . "\n";
@@ -307,7 +307,7 @@ class Export {
 
                 // Loop through each column
                 foreach($set as $data)
-                    $this->output['sql'] .= '\'' . addslashes(stripslashes($data)) . '\',';
+                    $this->output['sql'] .= '\'' . addslashes(stripslashes((string) $data)) . '\',';
 
                 // Chop off the comma
                 $this->output['sql'] = substr($this->output['sql'], 0, -1) . '),' . "\n";

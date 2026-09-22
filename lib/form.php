@@ -729,7 +729,7 @@ class Form {
 
                 $this->fields[$field]->Form($options, $config, $multi, $this->prefix);
             }else{
-                $name = ($prefix != '')?$prefix . '[' . $field . ']':$field;
+                $name = ($this->prefix != '')?$this->prefix . '[' . $field . ']':$field;
                 echo '<input name="' . $name . (($multi)?'[]':'') . '" type="hidden" id="' . $name . (($multi)?'_' . $this->Get('multi'):'') . '" value="' . urlencode($this->Output($this->fields[$field]->Get('value'))) . '" />' . "\n";
             }
         }
@@ -825,6 +825,6 @@ class Form {
      * @return string
      */
     public function Output($string){
-        return stripslashes($string);
+        return stripslashes((string) $string);
     }
 }
