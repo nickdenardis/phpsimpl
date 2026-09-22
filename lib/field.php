@@ -190,7 +190,8 @@ class Field {
      * @return bool
      */
     public function Form($options='', $config='', $multi=false, $prefix=''){
-        $settings = $this->settings['form'];
+        global $mySimpl;
+        $settings = $mySimpl->settings['form'];
 
         // If there is a default value use that
         $my_value = ((string)$this->Get('value') == '' && $this->Get('default') != '')?$this->Get('default'):$this->Get('value');
