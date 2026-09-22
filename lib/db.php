@@ -270,7 +270,7 @@ class DB extends Simpl {
             $query = substr($query, 0, -2) . ' WHERE ' . $parameters;
         }
 
-        return $this->Query($query, $this->database);
+        return $this->Query($query, $db !== '' ? $db : $this->database);
     }
 
     /**
