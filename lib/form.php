@@ -825,6 +825,6 @@ class Form {
      * @return string
      */
     public function Output($string){
-        return stripslashes($string);
+        return stripslashes((string) $string);
     }
 }

@@ -1066,7 +1066,7 @@ class DbTemplate extends Form {
         foreach($this->results as $key=>$row){
             $i++;
             foreach($display as $field)
-                $data[$i][$field] = stripslashes($row[$field]);
+                $data[$i][$field] = stripslashes((string) $row[$field]);
         }
 
         // Set the display
