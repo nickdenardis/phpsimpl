@@ -1,7 +1,6 @@
 <?php
 /**
- * Regression coverage for Field::Form() reading settings from the
- * global Simpl instance instead of a nonexistent $this->settings.
+ * Regression coverage for Field.
  */
 
 use Simpl\Field;
@@ -56,4 +55,27 @@ it('honors a custom required_indicator setting from the global Simpl instance', 
 
     expect($starPos)->not->toBeFalse();
     expect($starPos)->toBeLessThan($labelPos);
+});
+
+it('renders a field with no label or value without a deprecation notice', function () {
+    global $mySimpl;
+    $mySimpl = new Simpl();
+
+    $field = new Field(new Validate());
+    $field->Set('name', 'test_field');
+    $field->Set('type', 'text');
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    ob_start();
+    $field->Form();
+    ob_get_clean();
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
 });

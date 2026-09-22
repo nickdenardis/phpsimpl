@@ -74,6 +74,24 @@ it('handles labels correctly', function () {
     $data = ['name' => 'John'];
     $labels = ['name' => 'Full Name'];
     $form = new Form($data, [], $labels);
-    
+
     expect($form->GetLabel('name'))->toBe('Full Name');
+});
+
+it('renders a hidden field with a null value without a deprecation notice', function () {
+    $form = new Form(['name' => null]);
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    ob_start();
+    $form->FormField('name', true);
+    ob_get_clean();
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
 });

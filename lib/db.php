@@ -435,7 +435,7 @@ class DB extends Simpl {
      * @return string
      */
     public function Output($string) {
-        return htmlspecialchars(stripslashes($string));
+        return htmlspecialchars(stripslashes((string) $string));
     }
 
     /**
@@ -460,9 +460,9 @@ class DB extends Simpl {
         // Escape the values from SQL injection
         // Guard against null db_link if connection failed
         if ($this->db_link === null) {
-            return addslashes($string);
+            return addslashes((string) $string);
         }
-        return (is_numeric($string))?addslashes($string):\mysqli_real_escape_string($this->db_link, $string);
+        return (is_numeric($string))?addslashes((string) $string):\mysqli_real_escape_string($this->db_link, (string) $string);
     }
 
     /**

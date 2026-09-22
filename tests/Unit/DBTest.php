@@ -37,6 +37,40 @@ it('prepares strings for database input', function () {
     expect($prepared)->toContain("\\'");
 })->skip('Requires database connection');
 
+it('formats a null value for output without a deprecation notice', function () {
+    $db = new DB();
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    $output = $db->Output(null);
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($output)->toBe('');
+});
+
+it('prepares a null value for database input without a deprecation notice', function () {
+    $db = new DB();
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    $prepared = $db->Prepare(null);
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($prepared)->toBe('');
+});
+
 it('tracks connection state', function () {
     $db = new DB();
     

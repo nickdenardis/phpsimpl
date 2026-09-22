@@ -115,7 +115,7 @@ if (!function_exists('Pre')){
  */
 if (!function_exists('h')){
     function h($text){
-        return htmlspecialchars(stripslashes($text));
+        return htmlspecialchars(stripslashes((string) $text));
     }
 }
 
