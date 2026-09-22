@@ -57,6 +57,22 @@ class Mail {
      * @var	string Actual email body
      */
     private $body;
+    /**
+     * @var	bool Whether to validate email addresses
+     */
+    private $checkAddress;
+    /**
+     * @var	string Built message headers
+     */
+    private $headers;
+    /**
+     * @var	string Built message body plus headers
+     */
+    private $fullBody;
+    /**
+     * @var	string Comma-separated recipient list
+     */
+    private $strTo;
 
     /**
      * Mail contructor
@@ -333,7 +349,7 @@ class Mail {
             $address = $regs[1];
 
         // Check to see if it is in valid format
-        return preg_match('/^[^@]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$/', $email);
+        return preg_match('/^[^@]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$/', $address);
     }
 
     /**
