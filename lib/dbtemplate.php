@@ -815,8 +815,8 @@ class DbTemplate extends Form {
      */
     public function DisplayList($display='',$format=array(),$options=array(),$force_check=true){
         // Setup the Sort Sessions
-        $_SESSION[$this->table . '_sort'] = (isset($_GET['sort']) && $_GET['sort'] != '')?$_GET['sort']:$_SESSION[$this->table . '_sort'];
-        $_SESSION[$this->table . '_order'] = (isset($_GET['order']) && $_GET['order'] != '')?$_GET['order']:$_SESSION[$this->table . '_order'];
+        $_SESSION[$this->table . '_sort'] = (isset($_GET['sort']) && $_GET['sort'] != '')?$_GET['sort']:($_SESSION[$this->table . '_sort'] ?? '');
+        $_SESSION[$this->table . '_order'] = (isset($_GET['order']) && $_GET['order'] != '')?$_GET['order']:($_SESSION[$this->table . '_order'] ?? '');
 
         // Get the list of items if forced
         if ($force_check == true )
