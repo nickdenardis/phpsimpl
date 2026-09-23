@@ -76,7 +76,7 @@ if (!function_exists('IsAlert')){
 if (!function_exists('GetAlert')){
     function GetAlert($type){
         // Get the array
-        $return = $_SESSION[$type];
+        $return = $_SESSION[$type] ?? array();
         // Reset the array
         $_SESSION[$type] = array();
         // Return the array

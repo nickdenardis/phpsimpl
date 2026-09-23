@@ -73,3 +73,34 @@ it('transforms search terms', function () {
     expect($transformed)->toBeString();
     expect($transformed)->toContain('test');
 });
+
+it('returns an empty array from GetAlert() when the session has no alerts yet', function () {
+    $saved = $_SESSION ?? null;
+    $_SESSION = [];
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    $alerts = GetAlert('error');
+
+    restore_error_handler();
+    $_SESSION = $saved ?? [];
+
+    expect($errors)->toBe([]);
+    expect($alerts)->toBe([]);
+});
+
+it('returns waiting alerts from GetAlert() and clears them', function () {
+    $saved = $_SESSION ?? null;
+    $_SESSION = ['error' => ['Bad password']];
+
+    $alerts = GetAlert('error');
+    $remaining = $_SESSION['error'];
+    $_SESSION = $saved ?? [];
+
+    expect($alerts)->toBe(['Bad password']);
+    expect($remaining)->toBe([]);
+});
