@@ -478,18 +478,29 @@ class DbTemplate extends Form {
         if ($returns[0] == 'count')
         	$return = 'count(*) as `count`, ';
 
+        // Guard against $order_by being a direction keyword
+        if (is_string($order_by) && in_array(strtoupper(trim($order_by)), ['ASC', 'DESC'])) {
+            $order_by = '';
+        }
+
+        $order = '';
+
         // Get the order
         if(is_array($order_by)){
-        	foreach($order_by as $key=>$field)
-        		$order .= '`' . $this->database . '`.`' . $this->table . '`.' . $field . ((is_array($sort) && $sort[$key] != '')?' ' . $sort[$key] . ', ':', ');
+        	foreach($order_by as $key=>$field) {
+        		if (is_string($field) && in_array(strtoupper(trim($field)), ['ASC', 'DESC'])) {
+        			continue;
+        		}
+        		$order .= '`' . $this->database . '`.`' . $this->table . '`.' . $field . ((is_array($sort) && isset($sort[$key]) && $sort[$key] != '')?' ' . $sort[$key] . ', ':', ');
+        	}
         }else{
         	$order = ($order_by != '')?'`' . $this->database . '`.`' . $this->table . '`.' . $order_by . ', ':'';
         }
 
-        $order = substr($order,0,-2);
+        $order = ($order != '') ? substr($order,0,-2) : '';
 
         // Get the sort
-        if (!is_array($sort) && $sort != '')
+        if ($order != '' && !is_array($sort) && $sort != '')
         	$order .= ' ' . $sort;
 
         $query = 'SELECT ' . substr($return,0,-2) . ' FROM `' . $this->database . '`.`' . $this->table . '`';
