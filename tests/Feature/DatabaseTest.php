@@ -373,6 +373,68 @@ it('parses database table schema and assigns validation rules in DbTemplate', fu
     expect($template->Get('validate', 'score'))->toBe('float');
     expect($template->Get('validate', 'email'))->toBe('email');
     expect($template->Get('validate', 'description'))->toBeNull();
+
+    expect($template->primary)->toBe('id');
+    expect($template->Get('primary', 'id'))->toBe(1);
+    expect($template->Get('primary', 'age'))->toBe(0);
+});
+
+it('correctly stores and recovers computed primary key in table schema cache', function () {
+    $this->db->Query("CREATE TABLE IF NOT EXISTS test_cached_schema (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        content TEXT
+    )", '', false, false);
+
+    $this->db->Query("DELETE FROM test_cached_schema", '', false, false);
+    $this->db->Perform('test_cached_schema', ['title' => 'Cache Test Post', 'content' => 'Hello Cache'], 'insert');
+    $insertedId = $this->db->InsertID();
+
+    $cacheFile = FS_CACHE . 'table_test_cached_schema.cache.php';
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
+
+    // First instantiation: parses table schema and populates primary
+    $template1 = new DbTemplate('test_cached_schema', $this->db);
+    expect($template1->primary)->toBe('id');
+    expect($template1->Get('primary', 'id'))->toBe(1);
+    expect($template1->Get('primary', 'title'))->toBe(0);
+
+    // If cache file was written (when USE_CACHE is enabled), verify its content
+    if (file_exists($cacheFile)) {
+        $fileContent = file_get_contents($cacheFile);
+        expect($fileContent)->not->toContain('49699');
+
+        $cachedFields = unserialize($fileContent);
+        expect($cachedFields['id']->Get('primary'))->toBe(1);
+        expect($cachedFields['title']->Get('primary'))->toBe(0);
+
+        // Second instantiation: loads from cache
+        $template2 = new DbTemplate('test_cached_schema', $this->db);
+        expect($template2->primary)->toBe('id');
+        expect($template2->Get('primary', 'id'))->toBe(1);
+        expect($template2->Get('primary', 'title'))->toBe(0);
+
+        // Verify GetInfo works using recovered primary key
+        $template2->SetPrimary($insertedId);
+        $info = $template2->GetInfo();
+        expect($info)->toBeTrue();
+        expect($template2->GetValue('title'))->toBe('Cache Test Post');
+
+        // Test backward compatibility with legacy cache file containing MySQL flags (e.g. 49699)
+        $cachedFields['id']->Set('primary', 49699);
+        file_put_contents($cacheFile, serialize($cachedFields));
+
+        $templateLegacy = new DbTemplate('test_cached_schema', $this->db);
+        expect($templateLegacy->primary)->toBe('id');
+    }
+
+    // Cleanup
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
+    $this->db->Query("DROP TABLE test_cached_schema", '', false, false);
 });
 
 

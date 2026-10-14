@@ -41,7 +41,16 @@ echo ""
 
 docker-compose exec php82 php -v
 echo ""
-docker-compose exec php82 ./vendor/bin/pest --colors=always "$@" || echo "⚠️  Some PHP 8.2 tests failed"
+if [ -n "$USE_CACHE" ]; then
+    echo "Running tests with USE_CACHE=$USE_CACHE..."
+    docker-compose exec -e DB_HOST=mariadb -e DB_PORT=3306 -e USE_CACHE="$USE_CACHE" php82 ./vendor/bin/pest --colors=always "$@" || echo "⚠️  Some PHP 8.2 tests failed"
+else
+    echo "1/2 Running tests with USE_CACHE=false (cache disabled)..."
+    docker-compose exec -e DB_HOST=mariadb -e DB_PORT=3306 -e USE_CACHE=false php82 ./vendor/bin/pest --colors=always "$@" || echo "⚠️  Some PHP 8.2 tests failed"
+    echo ""
+    echo "2/2 Running tests with USE_CACHE=true (cache enabled)..."
+    docker-compose exec -e DB_HOST=mariadb -e DB_PORT=3306 -e USE_CACHE=true php82 ./vendor/bin/pest --colors=always "$@" || echo "⚠️  Some PHP 8.2 tests failed"
+fi
 
 echo ""
 echo "======================================================================="
