@@ -437,6 +437,44 @@ it('correctly stores and recovers computed primary key in table schema cache', f
     $this->db->Query("DROP TABLE test_cached_schema", '', false, false);
 });
 
+it('does not emit ORDER BY ASC when order_by is empty and sort is provided in GetList()', function () {
+    $this->db->Perform('test_users', ['name' => 'User A', 'email' => 'usera@test.example.com'], 'insert');
+    $this->db->Perform('test_users', ['name' => 'User B', 'email' => 'userb@test.example.com'], 'insert');
 
+    $template = new DbTemplate('test_users', $this->db);
+    $template->SetConditions("email LIKE '%@test.example.com'");
+    $results = $template->GetList([], '', 'ASC');
 
+    expect($results)->toBeArray();
+    expect(count($results))->toBe(2);
+});
+
+it('guards against order_by being a direction keyword in GetList()', function () {
+    $this->db->Perform('test_users', ['name' => 'User A', 'email' => 'usera@test.example.com'], 'insert');
+    $this->db->Perform('test_users', ['name' => 'User B', 'email' => 'userb@test.example.com'], 'insert');
+
+    $template = new DbTemplate('test_users', $this->db);
+    $template->SetConditions("email LIKE '%@test.example.com'");
+    $results = $template->GetList([], 'DESC');
+
+    expect($results)->toBeArray();
+    expect(count($results))->toBe(2);
+});
+
+it('orders correctly when column and sort direction are provided in GetList()', function () {
+    $this->db->Perform('test_users', ['name' => 'Charlie', 'email' => 'charlie@test.example.com'], 'insert');
+    $this->db->Perform('test_users', ['name' => 'Alice', 'email' => 'alice@test.example.com'], 'insert');
+    $this->db->Perform('test_users', ['name' => 'Bob', 'email' => 'bob@test.example.com'], 'insert');
+
+    $template = new DbTemplate('test_users', $this->db);
+    $template->SetConditions("email LIKE '%@test.example.com'");
+    $resultsAsc = $template->GetList([], 'name', 'ASC');
+
+    $namesAsc = array_values(array_map(fn($row) => $row['name'], $resultsAsc));
+    expect($namesAsc)->toBe(['Alice', 'Bob', 'Charlie']);
+
+    $resultsDesc = $template->GetList([], 'name', 'DESC');
+    $namesDesc = array_values(array_map(fn($row) => $row['name'], $resultsDesc));
+    expect($namesDesc)->toBe(['Charlie', 'Bob', 'Alice']);
+});
 
