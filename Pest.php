@@ -67,11 +67,29 @@ function loadEnv(): void
             $_ENV[$name] = $value;
             $_SERVER[$name] = $value;
             
+            // Convert boolean and null string values to actual types for defined constants
+            $lowerValue = strtolower((string)$value);
+            if ($lowerValue === 'true') {
+                $parsedValue = true;
+            } elseif ($lowerValue === 'false') {
+                $parsedValue = false;
+            } elseif ($lowerValue === 'null') {
+                $parsedValue = null;
+            } else {
+                $parsedValue = $value;
+            }
+
             // Also define as constants for legacy code
             if (!defined($name)) {
-                define($name, $value);
+                define($name, $parsedValue);
             }
         }
+    }
+
+    // Check runtime environment variable for USE_CACHE if not defined from .env.testing
+    if (!defined('USE_CACHE') && getenv('USE_CACHE') !== false) {
+        $envCache = strtolower((string)getenv('USE_CACHE'));
+        define('USE_CACHE', !($envCache === 'false' || $envCache === '0'));
     }
 }
 

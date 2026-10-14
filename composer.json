@@ -1,6 +1,6 @@
 {
     "name": "phpsimpl/simpl",
-    "version": "2.0.10",
+    "version": "2.0.11",
     "type": "library",
     "description": "PHPSimpl - a collection of useful PHP classes",
     "keywords": [
@@ -29,6 +29,9 @@
     },
     "scripts": {
         "test": "pest",
+        "test:cache-off": "USE_CACHE=false pest",
+        "test:cache-on": "USE_CACHE=true pest",
+        "test:all-cache": "USE_CACHE=false pest && USE_CACHE=true pest",
         "test:coverage": "pest --coverage"
     },
     "autoload": {
