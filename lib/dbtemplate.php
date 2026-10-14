@@ -88,7 +88,8 @@ class DbTemplate extends Form {
             // Recover the primary key
             foreach($this->fields as $name=>$field){
                 // Set the primary if it is
-                if ($field->Get('primary') == 1)
+                $is_primary_flag = defined('MYSQLI_PRI_KEY_FLAG') ? ($field->Get('primary') & MYSQLI_PRI_KEY_FLAG) : 0;
+                if ($field->Get('primary') == 1 || $is_primary_flag)
                     $this->primary = $name;
             }
         }else{
@@ -815,8 +816,8 @@ class DbTemplate extends Form {
      */
     public function DisplayList($display='',$format=array(),$options=array(),$force_check=true){
         // Setup the Sort Sessions
-        $_SESSION[$this->table . '_sort'] = (isset($_GET['sort']) && $_GET['sort'] != '')?$_GET['sort']:($_SESSION[$this->table . '_sort'] ?? '');
-        $_SESSION[$this->table . '_order'] = (isset($_GET['order']) && $_GET['order'] != '')?$_GET['order']:($_SESSION[$this->table . '_order'] ?? '');
+        $_SESSION[$this->table . '_sort'] = (isset($_GET['sort']) && $_GET['sort'] != '')?$_GET['sort']:(isset($_SESSION[$this->table . '_sort']) ? $_SESSION[$this->table . '_sort'] : '');
+        $_SESSION[$this->table . '_order'] = (isset($_GET['order']) && $_GET['order'] != '')?$_GET['order']:(isset($_SESSION[$this->table . '_order']) ? $_SESSION[$this->table . '_order'] : '');
 
         // Get the list of items if forced
         if ($force_check == true )
@@ -1178,11 +1179,12 @@ class DbTemplate extends Form {
             $tmpField->Set('type', $field->type);
             $tmpField->Set('length', $this->db_link->FieldLength($result,$field_count));
             $tmpField->Set('validate', $this->ValidType($field));
-            $tmpField->Set('primary', $field->flags);
+            $is_primary = (isset($field->primary_key) ? (int)$field->primary_key : (isset($field->flags) && ($field->flags & MYSQLI_PRI_KEY_FLAG) ? 1 : 0));
+            $tmpField->Set('primary', $is_primary);
             $tmpField->Set('display', ($field_count+1));
 
             // Set the primary if it is
-            if ($field->flags & MYSQLI_PRI_KEY_FLAG)
+            if ($is_primary == 1)
                 $this->primary = $field->name;
 
             // Add the field to the list

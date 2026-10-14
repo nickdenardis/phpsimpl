@@ -53,6 +53,34 @@ Or use the composer script:
 composer test
 ```
 
+### Run Tests With Cache Off / On
+
+You can test PHPSimpl in both development (`USE_CACHE=false`) and production (`USE_CACHE=true`) modes:
+
+**Run all tests with cache disabled:**
+```bash
+composer test:cache-off
+# or: USE_CACHE=false ./vendor/bin/pest
+```
+
+**Run all tests with cache enabled:**
+```bash
+composer test:cache-on
+# or: USE_CACHE=true ./vendor/bin/pest
+```
+
+**Run both suites sequentially (verifies cache off then cache on):**
+```bash
+composer test:all-cache
+```
+
+In the Docker PHP 8.2 environment, `./test-php82.sh` also runs both cache modes by default, or accepts an explicit `USE_CACHE` variable:
+```bash
+./test-php82.sh                     # Runs both cache off and cache on
+USE_CACHE=false ./test-php82.sh     # Cache disabled only
+USE_CACHE=true ./test-php82.sh      # Cache enabled only
+```
+
 ### Run Specific Test Suites
 
 **Unit tests only:**

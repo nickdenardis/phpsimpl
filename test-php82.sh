@@ -21,7 +21,16 @@ echo "Running PEST tests in PHP 8.2 container..."
 echo ""
 
 # Run tests in PHP 8.2 container with correct DB connection for container
-docker-compose exec -e DB_HOST=mariadb -e DB_PORT=3306 php82 ./vendor/bin/pest "$@"
+if [ -n "$USE_CACHE" ]; then
+    echo "Running tests with USE_CACHE=$USE_CACHE..."
+    docker-compose exec -e DB_HOST=mariadb -e DB_PORT=3306 -e USE_CACHE="$USE_CACHE" php82 ./vendor/bin/pest "$@"
+else
+    echo "1/2 Running tests with USE_CACHE=false (cache disabled)..."
+    docker-compose exec -e DB_HOST=mariadb -e DB_PORT=3306 -e USE_CACHE=false php82 ./vendor/bin/pest "$@"
+    echo ""
+    echo "2/2 Running tests with USE_CACHE=true (cache enabled)..."
+    docker-compose exec -e DB_HOST=mariadb -e DB_PORT=3306 -e USE_CACHE=true php82 ./vendor/bin/pest "$@"
+fi
 
 echo ""
 echo "=================================================="
