@@ -87,6 +87,8 @@ class DbTemplate extends Form {
 
             // Recover the primary key
             foreach($this->fields as $name=>$field){
+                $field->Set('type', DB::FieldTypeName($field->Get('type')));
+
                 // Set the primary if it is
                 $is_primary_flag = defined('MYSQLI_PRI_KEY_FLAG') ? ($field->Get('primary') & MYSQLI_PRI_KEY_FLAG) : 0;
                 if ($field->Get('primary') == 1 || $is_primary_flag)
@@ -1187,7 +1189,7 @@ class DbTemplate extends Form {
             $field_count = count($this->fields);
             $tmpField = new Field(new Validate);
             $tmpField->Set('name', $field->name);
-            $tmpField->Set('type', $field->type);
+            $tmpField->Set('type', DB::FieldTypeName($field->type));
             $tmpField->Set('length', $this->db_link->FieldLength($result,$field_count));
             $tmpField->Set('validate', $this->ValidType($field));
             $is_primary = (isset($field->primary_key) ? (int)$field->primary_key : (isset($field->flags) && ($field->flags & MYSQLI_PRI_KEY_FLAG) ? 1 : 0));

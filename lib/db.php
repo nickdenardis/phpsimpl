@@ -416,6 +416,58 @@ class DB extends Simpl {
     }
 
     /**
+     * Get the legacy mysql_field_type() name for a mysqli field type code
+     *
+     * @param mixed $type MYSQLI_TYPE_* code, or an already-named type
+     * @return string
+     */
+    public static function FieldTypeName($type) {
+        if (!is_int($type))
+            return $type;
+
+        switch ($type) {
+            case MYSQLI_TYPE_TINY:
+            case MYSQLI_TYPE_SHORT:
+            case MYSQLI_TYPE_LONG:
+            case MYSQLI_TYPE_INT24:
+            case MYSQLI_TYPE_LONGLONG:
+                return 'int';
+            case MYSQLI_TYPE_DECIMAL:
+            case MYSQLI_TYPE_NEWDECIMAL:
+            case MYSQLI_TYPE_FLOAT:
+            case MYSQLI_TYPE_DOUBLE:
+                return 'real';
+            case MYSQLI_TYPE_STRING:
+            case MYSQLI_TYPE_VAR_STRING:
+            case MYSQLI_TYPE_ENUM:
+            case MYSQLI_TYPE_SET:
+                return 'string';
+            case MYSQLI_TYPE_TINY_BLOB:
+            case MYSQLI_TYPE_MEDIUM_BLOB:
+            case MYSQLI_TYPE_LONG_BLOB:
+            case MYSQLI_TYPE_BLOB:
+                return 'blob';
+            case MYSQLI_TYPE_DATE:
+            case MYSQLI_TYPE_NEWDATE:
+                return 'date';
+            case MYSQLI_TYPE_DATETIME:
+                return 'datetime';
+            case MYSQLI_TYPE_TIMESTAMP:
+                return 'timestamp';
+            case MYSQLI_TYPE_TIME:
+                return 'time';
+            case MYSQLI_TYPE_YEAR:
+                return 'year';
+            case MYSQLI_TYPE_NULL:
+                return 'null';
+            case MYSQLI_TYPE_GEOMETRY:
+                return 'geometry';
+            default:
+                return 'unknown';
+        }
+    }
+
+    /**
      * Get the Field Length
      *
      * @param mixed $result from DB

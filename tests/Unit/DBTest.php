@@ -87,3 +87,30 @@ it('builds UPDATE queries correctly with Perform', function () {
     // This would require mocking the database
     // Skipping for now, will implement with real DB in Feature tests
 })->skip('Requires database mocking');
+
+it('maps mysqli field type codes to legacy mysql type names', function (int $code, string $name) {
+    expect(DB::FieldTypeName($code))->toBe($name);
+})->with([
+    [MYSQLI_TYPE_TINY, 'int'],
+    [MYSQLI_TYPE_SHORT, 'int'],
+    [MYSQLI_TYPE_LONG, 'int'],
+    [MYSQLI_TYPE_INT24, 'int'],
+    [MYSQLI_TYPE_LONGLONG, 'int'],
+    [MYSQLI_TYPE_DECIMAL, 'real'],
+    [MYSQLI_TYPE_NEWDECIMAL, 'real'],
+    [MYSQLI_TYPE_FLOAT, 'real'],
+    [MYSQLI_TYPE_DOUBLE, 'real'],
+    [MYSQLI_TYPE_STRING, 'string'],
+    [MYSQLI_TYPE_VAR_STRING, 'string'],
+    [MYSQLI_TYPE_BLOB, 'blob'],
+    [MYSQLI_TYPE_DATE, 'date'],
+    [MYSQLI_TYPE_DATETIME, 'datetime'],
+    [MYSQLI_TYPE_TIMESTAMP, 'timestamp'],
+    [MYSQLI_TYPE_TIME, 'time'],
+    [MYSQLI_TYPE_YEAR, 'year'],
+]);
+
+it('passes legacy type names through FieldTypeName unchanged', function () {
+    expect(DB::FieldTypeName('int'))->toBe('int');
+    expect(DB::FieldTypeName('blob'))->toBe('blob');
+});
