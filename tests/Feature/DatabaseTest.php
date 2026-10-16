@@ -478,3 +478,53 @@ it('orders correctly when column and sort direction are provided in GetList()', 
     expect($namesDesc)->toBe(['Charlie', 'Bob', 'Alice']);
 });
 
+
+it('stores legacy type names on DbTemplate fields and returns int columns as ints', function () {
+    $this->db->Query("CREATE TEMPORARY TABLE IF NOT EXISTS test_field_types (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        is_admin TINYINT(1) NOT NULL DEFAULT 0,
+        title VARCHAR(255),
+        body TEXT,
+        starts_on DATE,
+        starts_at TIME
+    )", '', false, false);
+    $this->db->Perform('test_field_types', ['is_admin' => 1, 'title' => 'Admin'], 'insert');
+    $insertedId = $this->db->InsertID();
+
+    $template = new DbTemplate('test_field_types', $this->db);
+
+    expect($template->Get('type', 'id'))->toBe('int');
+    expect($template->Get('type', 'is_admin'))->toBe('int');
+    expect($template->Get('type', 'title'))->toBe('string');
+    expect($template->Get('type', 'body'))->toBe('blob');
+    expect($template->Get('type', 'starts_on'))->toBe('date');
+    expect($template->Get('type', 'starts_at'))->toBe('time');
+
+    $template->SetPrimary($insertedId);
+    expect($template->GetInfo())->toBeTrue();
+    expect($template->GetValue('is_admin'))->toBe(1);
+    expect($template->GetValue('title'))->toBe('Admin');
+});
+
+it('normalizes numeric field types loaded from a legacy schema cache', function () {
+    $this->db->Query("CREATE TABLE IF NOT EXISTS test_legacy_type_cache (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255)
+    )", '', false, false);
+
+    $cacheFile = FS_CACHE . 'table_test_legacy_type_cache.cache.php';
+    $template = new DbTemplate('test_legacy_type_cache', $this->db);
+
+    if (file_exists($cacheFile)) {
+        $cachedFields = unserialize(file_get_contents($cacheFile));
+        $cachedFields['id']->Set('type', MYSQLI_TYPE_LONG);
+        file_put_contents($cacheFile, serialize($cachedFields));
+
+        $template = new DbTemplate('test_legacy_type_cache', $this->db);
+        unlink($cacheFile);
+    }
+
+    expect($template->Get('type', 'id'))->toBe('int');
+
+    $this->db->Query("DROP TABLE test_legacy_type_cache", '', false, false);
+});
