@@ -5,6 +5,7 @@
 
 use Simpl\Field;
 use Simpl\Simpl;
+use Simpl\Upload;
 use Simpl\Validate;
 
 it('renders a form field without warnings using the global Simpl settings', function () {
@@ -79,3 +80,76 @@ it('renders a field with no label or value without a deprecation notice', functi
 
     expect($errors)->toBe([]);
 });
+
+it('renders a Simpl\Upload field as a file input when empty and hidden/remove input when populated', function () {
+    global $mySimpl;
+    $mySimpl = new Simpl();
+
+    $upload = (new ReflectionClass(Upload::class))->newInstanceWithoutConstructor();
+
+    $field = new Field(new Validate());
+    $field->Set('name', 'photo');
+    $field->Set('label', 'Photo');
+    $field->Set('options', $upload);
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    ob_start();
+    $field->Form();
+    $emptyOutput = ob_get_clean();
+
+    $field->Set('value', 'avatar.jpg');
+    ob_start();
+    $field->Form();
+    $populatedOutput = ob_get_clean();
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($emptyOutput)->toContain('type="file"');
+    expect($populatedOutput)->toContain('avatar.jpg');
+    expect($populatedOutput)->toContain('Remove File');
+});
+
+it('renders radio and checkbox fields without undefined variable warnings', function () {
+    global $mySimpl;
+    $mySimpl = new Simpl();
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    $radio = new Field(new Validate());
+    $radio->Set('name', 'status');
+    $radio->Set('options', ['active' => 'Active', 'inactive' => 'Inactive']);
+    $radio->Set('config', 'radio');
+    $radio->Set('value', 'active');
+
+    ob_start();
+    $radio->Form();
+    $radioOutput = ob_get_clean();
+
+    $checkbox = new Field(new Validate());
+    $checkbox->Set('name', 'tags');
+    $checkbox->Set('options', ['news' => 'News', 'events' => 'Events']);
+    $checkbox->Set('config', 'checkbox');
+    $checkbox->Set('value', null);
+
+    ob_start();
+    $checkbox->Form();
+    $checkboxOutput = ob_get_clean();
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($radioOutput)->toContain('type="radio"');
+    expect($radioOutput)->toContain('checked="checked"');
+    expect($checkboxOutput)->toContain('type="checkbox"');
+});
+

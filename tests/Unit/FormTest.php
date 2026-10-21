@@ -95,3 +95,33 @@ it('renders a hidden field with a null value without a deprecation notice', func
 
     expect($errors)->toBe([]);
 });
+
+it('renders Form() and FormField() with Upload and checkbox options without warnings', function () {
+    global $mySimpl;
+    $mySimpl = new \Simpl\Simpl();
+
+    $upload = (new ReflectionClass(\Simpl\Upload::class))->newInstanceWithoutConstructor();
+    $form = new Form(['photo' => '', 'roles' => 'admin']);
+    $form->SetOption('photo', $upload);
+    $form->SetOption('roles', ['admin' => 'Admin', 'editor' => 'Editor']);
+    $form->SetConfig(['roles' => 'checkbox']);
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    ob_start();
+    $form->FormField('photo');
+    $form->FormField('roles');
+    $form->Form();
+    $output = ob_get_clean();
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($output)->toContain('type="file"');
+    expect($output)->toContain('type="checkbox"');
+});
+
