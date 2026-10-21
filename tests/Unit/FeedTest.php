@@ -1,5 +1,6 @@
 <?php
 
+use Simpl\FeedDate;
 use Simpl\FeedItem;
 use Simpl\UniversalFeedCreator;
 
@@ -29,6 +30,32 @@ it('sets the rss version for RSS 0.91 feeds', function () {
 
 it('uses the item date rather than the current time', function () {
     expect(buildFeed('RSS2.0'))->toContain('<pubDate>Wed, 07 Oct 2026');
+});
+
+it('formats dates with the offset in effect on that date', function () {
+    $timezone = date_default_timezone_get();
+    date_default_timezone_set('America/Detroit');
+
+    $summer = (new FeedDate('2026-10-28T16:00:00-0400'))->rfc822();
+    $winter = (new FeedDate('2026-11-12T09:00:00-0500'))->rfc822();
+    $utc = (new FeedDate('2026-11-12T14:00:00Z'))->iso8601();
+
+    date_default_timezone_set($timezone);
+
+    expect($summer)->toBe('Wed, 28 Oct 2026 16:00:00 -0400');
+    expect($winter)->toBe('Thu, 12 Nov 2026 09:00:00 -0500');
+    expect($utc)->toBe('2026-11-12T09:00:00-05:00');
+});
+
+it('parses rfc 822 dates', function () {
+    $timezone = date_default_timezone_get();
+    date_default_timezone_set('America/Detroit');
+
+    $date = (new FeedDate('Thu, 12 Nov 2026 09:00:00 -0500'))->rfc822();
+
+    date_default_timezone_set($timezone);
+
+    expect($date)->toBe('Thu, 12 Nov 2026 09:00:00 -0500');
 });
 
 it('includes the item description', function () {
