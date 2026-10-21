@@ -756,7 +756,7 @@ class Form {
 
         // Show the fields
         foreach($this->display as $field)
-            $this->fields[$field]->Form($options[$field], $config[$field], $mutli, $this->prefix);
+            $this->fields[$field]->Form((isset($options[$field]))?$options[$field]:'', (isset($config[$field]))?$config[$field]:'', $mutli, $this->prefix);
 
         // End the fieldset
         echo '</fieldset>' . "\n";

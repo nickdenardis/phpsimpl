@@ -237,6 +237,7 @@ class Field {
             switch(get_class($this->Get('options'))){
                 // If we are uploading a file
                 case 'Upload':
+                case 'Simpl\Upload':
                     // If there is something in the field
                     if ($my_value != ''){
                         $output .=  '<div id="form_' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '">' . $my_value . ' <label><input name="remove' . (($multi)?'[]':'') . '[]" type="checkbox" value="' . $this->Get('name') . '" id="remove_' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '" /> Remove File</label></div>';
@@ -253,6 +254,7 @@ class Field {
             }
         }else if (is_array($this->Get('options')) && count($this->Get('options')) > 0){
             // Multi Options
+            $each = '';
             switch($this->Get('config')){
                 case 'radio':
                     foreach($this->Get('options') as $key=>$value){
@@ -262,7 +264,7 @@ class Field {
                     $output .= '<div class="radio">' . $each . '</div>';
                     break;
                 case 'checkbox':
-                    $split = explode(',',$my_value);
+                    $split = explode(',',(string)$my_value);
                     foreach($this->Get('options') as $key=>$value){
                         $selected = (in_array($key,$split))?' checked="checked"':'';
                         $each .= '<div><input name="' . $name . (($multi)?'[]':'') . '[]" type="checkbox" value="' . $key . '" id="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '_' . $key . '"' . $selected . ' /><label for="' . $this->Get('name') . (($multi)?'_' . $this->Get('multi'):'') . '_' . $key . '">' . $this->Output($value) . '</label></div>';
@@ -324,7 +326,7 @@ class Field {
         // Display the individual item
         $output = '<tr>';
         $output .= '<th scope="row">' . $this->Label(':') . '</th>';
-        $output .= '<td>' . (($options[$this->Get('value')] != '')?$options[$this->Get('value')]:$this->Output($this->Get('value'))) . '</td>';
+        $output .= '<td>' . ((is_array($options) && isset($options[$this->Get('value')]) && $options[$this->Get('value')] != '')?$options[$this->Get('value')]:$this->Output($this->Get('value'))) . '</td>';
         $output .= '</tr>';
 
         echo $output;

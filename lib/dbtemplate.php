@@ -580,12 +580,15 @@ class DbTemplate extends Form {
         if ($this->conditions != '')
             $parts .= ' AND ' . $this->conditions;
 
+        // Initiate vars
+        $return = $join = '';
+
         // Loop through all the joined classes
         foreach($this->join_class as $key=>$class){
             // Create the return fields
-            if (is_array($returns[$key]) && count($returns[$key]) > 0){
+            if (isset($returns[$key]) && is_array($returns[$key]) && count($returns[$key]) > 0){
                 // Require primary key returned
-                if (!in_array($class->primary,$returns[$key]))
+                if ($class->primary != '' && !in_array($class->primary,$returns[$key]))
                     $return .= '`' . $class->database . '`.`' . $class->table . '`.' . $class->primary . ', ';
 
                 // List all other fields to be returned
@@ -598,7 +601,8 @@ class DbTemplate extends Form {
                 }
             }else{
                 // Local class return values
-                if (is_array($returns[$key])){
+                if (isset($returns[$key]) && is_array($returns[$key])){
+                    $fields = array();
                     foreach($returns[$key] as $field)
                         $fields[] = '`' . $this->database . '`.`' . $this->table . '`.' . $field;
                     $return .= implode(', ', $fields);
@@ -622,10 +626,13 @@ class DbTemplate extends Form {
             $info['score'] = 0;
             foreach($terms_rx as $term_rx){
                 if (is_array($search_fields)){
-                    foreach($search_fields as $field)
-                        $info['score'] += preg_match_all("/$term_rx/i", $info[$field], $null);
+                    foreach($search_fields as $field){
+                        $subject = isset($info[$field]) ? (string)$info[$field] : '';
+                        $info['score'] += preg_match_all("/$term_rx/i", $subject, $null);
+                    }
                 }else{
-                    $info['score'] += preg_match_all("/$term_rx/i", $info[$search_fields], $null);
+                    $subject = isset($info[$search_fields]) ? (string)$info[$search_fields] : '';
+                    $info['score'] += preg_match_all("/$term_rx/i", $subject, $null);
                 }
             }
             $results[] = $info;
@@ -813,7 +820,7 @@ class DbTemplate extends Form {
 
         // Show the fields
         foreach($this->display as $field)
-            $this->fields[$field]->View($options[$field]);
+            $this->fields[$field]->View((isset($options[$field]))?$options[$field]:'');
 
         echo '</table>';
     }
@@ -881,10 +888,10 @@ class DbTemplate extends Form {
                 foreach($show as $name=>$value){
                     $output .= '<td' . (($col == $col_count)?' class="last"':'') . '>';
                     //$str = stripslashes($field[$name]);
-                    $str = $this->Output($field[$name]);
+                    $str = $this->Output(isset($field[$name]) ? $field[$name] : '');
 
                     if (isset($options[$name]) && is_array($options[$name]))
-                        $str = $options[$name][$str];
+                        $str = isset($options[$name][$str]) ? $options[$name][$str] : '';
                     else if (isset($options[$name]) && function_exists($options[$name])){
                         $func = $options[$name];
                         $str = $func($str);
@@ -897,7 +904,7 @@ class DbTemplate extends Form {
                     }
 
                     $int_options = $this->Get('options', $name);
-                    if (is_array($int_options) && $int_options[$str] != '')
+                    if (is_array($int_options) && isset($int_options[$str]) && $int_options[$str] != '')
                         $str = $int_options[$str];
 
                     // Make sure the str is not NULL
@@ -1162,7 +1169,7 @@ class DbTemplate extends Form {
         if ((isset($field->unsigned) && $field->unsigned == 1) || (isset($field->flags) && ($field->flags & MYSQLI_UNSIGNED_FLAG)))
             return 'unsigned';
 
-        if ($field->type === 'real' || (isset($field->type) && in_array($field->type, [MYSQLI_TYPE_FLOAT, MYSQLI_TYPE_DOUBLE, MYSQLI_TYPE_DECIMAL, MYSQLI_TYPE_NEWDECIMAL], true)))
+        if (isset($field->type) && ($field->type === 'real' || in_array($field->type, [MYSQLI_TYPE_FLOAT, MYSQLI_TYPE_DOUBLE, MYSQLI_TYPE_DECIMAL, MYSQLI_TYPE_NEWDECIMAL], true)))
             return 'float';
 
         if ((isset($field->numeric) && $field->numeric == 1) || (isset($field->flags) && ($field->flags & MYSQLI_NUM_FLAG)))
