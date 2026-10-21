@@ -142,3 +142,103 @@ it('handles non-object inputs gracefully in ValidType()', function ($input) {
     'string'   => ['not_an_object'],
     'array'    => [['name' => 'email']],
 ]);
+
+it('executes Search() with joined tables and non-returned search fields without warnings', function () {
+    $fakeDb = new class {
+        public array $queries = [];
+        private array $rows = [
+            ['id' => 1, 'title' => 'Campus Map', 'description' => null],
+        ];
+        private int $idx = 0;
+
+        public function Query($query, $database = '')
+        {
+            $this->queries[] = $query;
+            $this->idx = 0;
+            return true;
+        }
+
+        public function FetchArray($result)
+        {
+            if ($this->idx < count($this->rows)) {
+                return $this->rows[$this->idx++];
+            }
+            return false;
+        }
+    };
+
+    $main = $this->reflection->newInstanceWithoutConstructor();
+    $main->table = 'locations';
+    $main->database = 'maps_db';
+    $main->primary = 'id';
+
+    $joined = $this->reflection->newInstanceWithoutConstructor();
+    $joined->table = 'categories';
+    $joined->database = 'maps_db';
+    $joined->primary = 'cat_id';
+
+    $dbLinkProp = $this->reflection->getProperty('db_link');
+    $dbLinkProp->setAccessible(true);
+    $dbLinkProp->setValue($main, $fakeDb);
+
+    $main->Join($joined, 'cat_id', 'LEFT');
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    // 'notes' is in $search_fields but not in $return_fields; 'description' is NULL in row
+    $count = $main->Search('Campus', ['title', 'description', 'notes'], ['title']);
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($count)->toBe(1);
+    expect($fakeDb->queries[0])->toContain('LEFT JOIN `maps_db`.`categories`');
+});
+
+it('renders DisplayList() with unmapped int_options and options without undefined array key warnings', function () {
+    if (!defined('SIMPL_TABLE_STRIPES')) {
+        define('SIMPL_TABLE_STRIPES', true);
+    }
+    $_SERVER['PHP_SELF'] = '/index.php';
+    $_SESSION = [];
+
+    $fieldObj = new \Simpl\Field(new \Simpl\Validate());
+    $fieldObj->Set('name', 'status');
+    $fieldObj->Set('label', 'Status');
+    $fieldObj->Set('options', ['1' => 'Published']);
+
+    $fieldsProp = $this->reflection->getProperty('fields');
+    $fieldsProp->setAccessible(true);
+    $fieldsProp->setValue($this->template, ['status' => $fieldObj]);
+
+    $this->template->table = 'locations';
+    $this->template->primary = 'id';
+    $this->template->results = [
+        1 => ['id' => 1, 'status' => 'unmapped_value'],
+    ];
+
+    $errors = [];
+    set_error_handler(function ($no, $str) use (&$errors) {
+        $errors[] = $str;
+        return true;
+    });
+
+    ob_start();
+    $this->template->DisplayList(
+        ['status', 'virtual_column'],
+        ['status' => '<a href="?id={$item_id}">{$data}</a>'],
+        ['virtual_column' => ['only_mapped' => 'Yes']],
+        false
+    );
+    $output = ob_get_clean();
+
+    restore_error_handler();
+
+    expect($errors)->toBe([]);
+    expect($output)->toContain('table_locations');
+});
+
