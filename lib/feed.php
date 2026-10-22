@@ -162,7 +162,7 @@ class FeedHtmlField {
      * Creates a new instance of FeedHtmlField.
      * @param  $string if given, sets the rawFieldContent property
      */
-    function FeedHtmlField($parFieldContent) {
+    function __construct($parFieldContent) {
         if ($parFieldContent)
             $this->rawFieldContent = $parFieldContent;
     }
@@ -305,6 +305,9 @@ class FeedCreator extends HtmlDescribable {
     // Optional attributes of a feed.
     var $syndicationURL, $image, $language, $copyright, $pubDate, $lastBuildDate, $editor, $editorEmail, $webmaster, $category, $docs, $ttl, $rating, $skipHours, $skipDays;
 
+    // The url of the external css stylesheet used to format the naked rss feed.
+    var $cssStyleSheet = "";
+
     // The url of the external xsl stylesheet used to format the naked rss feed.
     var $xslStyleSheet = "";
 
@@ -353,7 +356,7 @@ class FeedCreator extends HtmlDescribable {
      * @param int        length the maximum length the string should be truncated to
      * @return string    the truncated string
      */
-    function iTrunc($string, $length) {
+    static function iTrunc($string, $length) {
         if (strlen($string)<=$length)
             return $string;
 
@@ -534,50 +537,19 @@ class FeedDate {
      * Accepts RFC 822, ISO 8601 date formats as well as unix time stamps.
      * @param mixed $dateString optional the date this FeedDate will represent. If not specified, the current date and time is used.
      */
-    function FeedDate($dateString="") {
-        if ($dateString=="") $dateString = date("r");
+    function __construct($dateString="") {
+        if ($dateString=="") {
+            $this->unix = time();
+            return;
+        }
 
         if (is_integer($dateString)) {
             $this->unix = $dateString;
             return;
         }
-        if (preg_match("~(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\\s+)?(\\d{1,2})\\s+([a-zA-Z]{3})\\s+(\\d{4})\\s+(\\d{2}):(\\d{2}):(\\d{2})\\s+(.*)~",$dateString,$matches)) {
-            $months = Array("Jan"=>1,"Feb"=>2,"Mar"=>3,"Apr"=>4,"May"=>5,"Jun"=>6,"Jul"=>7,"Aug"=>8,"Sep"=>9,"Oct"=>10,"Nov"=>11,"Dec"=>12);
-            $this->unix = mktime($matches[4],$matches[5],$matches[6],$months[$matches[2]],$matches[1],$matches[3]);
-            if (substr($matches[7],0,1)=='+' OR substr($matches[7],0,1)=='-') {
-                $tzOffset = (substr($matches[7],0,3) * 60 + substr($matches[7],-2)) * 60;
-            } else {
-                if (strlen($matches[7])==1) {
-                    $oneHour = 3600;
-                    $ord = ord($matches[7]);
-                    if ($ord < ord("M")) {
-                        $tzOffset = (ord("A") - $ord - 1) * $oneHour;
-                    } elseif ($ord >= ord("M") AND $matches[7]!="Z") {
-                        $tzOffset = ($ord - ord("M")) * $oneHour;
-                    } elseif ($matches[7]=="Z") {
-                        $tzOffset = 0;
-                    }
-                }
-                switch ($matches[7]) {
-                    case "UT":
-                    case "GMT":	$tzOffset = 0;
-                }
-            }
-            $this->unix += $tzOffset;
-            return;
-        }
-        if (preg_match("~(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(.*)~",$dateString,$matches)) {
-            $this->unix = mktime($matches[4],$matches[5],$matches[6],$matches[2],$matches[3],$matches[1]);
-            if (substr($matches[7],0,1)=='+' OR substr($matches[7],0,1)=='-') {
-                $tzOffset = (substr($matches[7],0,3) * 60 + substr($matches[7],-2)) * 60;
-            } else {
-                if ($matches[7]=="Z")
-                    $tzOffset = 0;
-            }
-            $this->unix += $tzOffset;
-            return;
-        }
-        $this->unix = 0;
+
+        $unix = strtotime($dateString);
+        $this->unix = ($unix === false) ? 0 : $unix;
     }
 
     /**
@@ -586,10 +558,7 @@ class FeedDate {
      * @return a date in RFC 822 format
      */
     function rfc822() {
-        //return gmdate("r",$this->unix);
-        $date = gmdate("D, d M Y H:i:s", $this->unix);
-        if (TIME_ZONE!="") $date .= " ".str_replace(":","",TIME_ZONE);
-        return $date;
+        return date("D, d M Y H:i:s O", $this->unix);
     }
 
     /**
@@ -598,10 +567,7 @@ class FeedDate {
      * @return a date in ISO 8601 format
      */
     function iso8601() {
-        $date = gmdate("Y-m-d\TH:i:sO",$this->unix);
-        $date = substr($date,0,22) . ':' . substr($date,-2);
-        if (TIME_ZONE!="") $date = str_replace("+00:00",TIME_ZONE,$date);
-        return $date;
+        return date("c", $this->unix);
     }
 
     /**
@@ -702,7 +668,7 @@ class RSSCreator091 extends FeedCreator {
      */
     var $RSSVersion;
 
-    function RSSCreator091() {
+    function __construct() {
         $this->_setRSSVersion("0.91");
         $this->contentType = "application/rss+xml";
     }
@@ -818,8 +784,9 @@ class RSSCreator091 extends FeedCreator {
  * @author Kai Blankenhorn <kaib@bitfolge.de>
  */
 class RSSCreator20 extends RSSCreator091 {
-    function RSSCreator20() {
-        parent::_setRSSVersion("2.0");
+    function __construct() {
+        parent::__construct();
+        $this->_setRSSVersion("2.0");
     }
 }
 
@@ -832,7 +799,7 @@ class RSSCreator20 extends RSSCreator091 {
  * @author Scott Reynen <scott@randomchaos.com> and Kai Blankenhorn <kaib@bitfolge.de>
  */
 class PIECreator01 extends FeedCreator {
-    function PIECreator01() {
+    function __construct() {
         $this->encoding = "utf-8";
     }
 
@@ -887,7 +854,7 @@ class PIECreator01 extends FeedCreator {
  * @author Kai Blankenhorn <kaib@bitfolge.de>, Scott Reynen <scott@randomchaos.com>
  */
 class AtomCreator03 extends FeedCreator {
-    function AtomCreator03() {
+    function __construct() {
         $this->contentType = "application/atom+xml";
         $this->encoding = "utf-8";
     }
@@ -949,7 +916,7 @@ class AtomCreator03 extends FeedCreator {
  * @author Kai Blankenhorn <kaib@bitfolge.de>
  */
 class MBOXCreator extends FeedCreator {
-    function MBOXCreator() {
+    function __construct() {
         $this->contentType = "text/plain";
         $this->encoding = "ISO-8859-15";
     }
@@ -1033,7 +1000,7 @@ class MBOXCreator extends FeedCreator {
  * @since 1.5
  */
 class OPMLCreator extends FeedCreator {
-    function OPMLCreator() {
+    function __construct() {
         $this->encoding = "utf-8";
     }
 
